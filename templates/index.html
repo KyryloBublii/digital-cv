@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Kyrylo Bublii — Portfolio{% endblock %}
+
+{% block content %}
+
+{# ── HERO ──────────────────────────────────────────────────── #}
+<section id="home">
+  <div class="wrap">
+    <div class="hero-inner">
+      <div class="hero-left">
+        <div class="hero-status">
+          <span class="status-dot"></span>
+          Open to full-time &amp; freelance
+        </div>
+        <h1 class="hero-h1">
+          Full Stack<br><em>Developer</em>
+        </h1>
+        <p class="hero-desc">
+          Building modern, responsive web applications with clean code and a practical eye for detail — from database architecture to polished interfaces.
+        </p>
+        <div class="hero-btns">
+          <a href="{{ url_for('projects') }}" class="btn-primary">View My Work →</a>
+          <a href="{{ url_for('contact') }}"  class="btn-ghost">Get In Touch</a>
+        </div>
+      </div>
+      <div class="hero-right">
+        <div class="hero-facts">
+          <div class="hero-fact">
+            <span class="hf-label">Location</span>
+            <span class="hf-val">Siauliai, Lithuania</span>
+          </div>
+          <div class="hero-fact">
+            <span class="hf-label">Current Role</span>
+            <span class="hf-val">Programmer · ELGA</span>
+          </div>
+          <div class="hero-fact">
+            <span class="hf-label">Education</span>
+            <span class="hf-val">BSc Software Engineering · 2026</span>
+          </div>
+          <div class="hero-fact">
+            <span class="hf-label">Response time</span>
+            <span class="hf-val">Within 24 hours</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ── FEATURED PROJECTS ─────────────────────────────────────── #}
+{% if featured %}
+<section class="s s-alt">
+  <div class="wrap">
+    <div class="s-head rv">
+      <div>
+        <div class="s-label">Selected Work</div>
+        <h2 class="s-title">Featured <em>Projects</em></h2>
+      </div>
+      <a href="{{ url_for('projects') }}" class="btn-ghost">All Projects →</a>
+    </div>
+    <div class="projects-grid">
+      {% for p in featured %}
+      <div class="proj-card rv{% if p.featured %} featured{% endif %}{% if not loop.first %} d{{ loop.index0 if loop.index0 <= 4 else 4 }}{% endif %}">
+        <div class="proj-screenshot">
+          {% if p.screenshot %}
+            <img src="{{ p.screenshot }}" alt="{{ p.title }} screenshot" loading="lazy" />
+          {% else %}
+            <div class="proj-screenshot-placeholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="2" y="3" width="20" height="14" rx="2"/><path d="m8 21 4-4 4 4M12 17v4"/>
+              </svg>
+              Screenshot coming soon
+            </div>
+          {% endif %}
+          <span class="proj-status-badge badge-{{ p.status }}">
+            {% if p.status == 'live' %}Live{% elif p.status == 'wip' %}In Progress{% else %}Archived{% endif %}
+          </span>
+        </div>
+        <div class="proj-body">
+          <div class="proj-title">{{ p.title }}</div>
+          <p class="proj-desc">{{ p.description }}</p>
+          <div class="proj-tags">
+            {% for tag in p.tags %}<span class="proj-tag">{{ tag }}</span>{% endfor %}
+          </div>
+          <div class="proj-footer">
+            <div class="proj-links">
+              {% if p.live_url %}<a href="{{ p.live_url }}" target="_blank" class="proj-link primary">Live Demo ↗</a>{% endif %}
+              {% if p.github_url %}<a href="{{ p.github_url }}" target="_blank" class="proj-link">GitHub ↗</a>{% endif %}
+            </div>
+            <span class="proj-year">{{ p.year }}</span>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{# ── CTA ───────────────────────────────────────────────────── #}
+<section class="s">
+  <div class="wrap">
+    <div class="rv" style="text-align:center;max-width:560px;margin:0 auto;">
+      <div class="s-label" style="text-align:center;">Let's Work Together</div>
+      <h2 class="s-title" style="margin-bottom:20px;">Got a project<br>in <em>mind?</em></h2>
+      <p style="font-size:15px;font-weight:300;color:var(--ink-2);line-height:1.8;margin-bottom:32px;">
+        Whether it's a new product, a role to fill, or just an interesting problem — I'm happy to talk.
+      </p>
+      <a href="{{ url_for('contact') }}" class="btn-primary">Get In Touch →</a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

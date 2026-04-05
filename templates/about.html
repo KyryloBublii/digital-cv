@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}About — Kyrylo Bublii{% endblock %}
+
+{% block content %}
+
+{# ── ABOUT ─────────────────────────────────────────────────── #}
+<section class="s">
+  <div class="wrap">
+    <div class="s-head rv">
+      <div>
+        <div class="s-label">About Me</div>
+        <h2 class="s-title">Who I <em>am</em></h2>
+      </div>
+    </div>
+    <div class="about-grid">
+      <div class="about-photo-box rv">
+        <div class="about-photo">
+          <img src="{{ url_for('static', filename='images/profile.jpg') }}" alt="Kyrylo Bublii" />
+        </div>
+        <div class="avail-chip">Available for new projects</div>
+      </div>
+      <div class="rv d1">
+        <p class="about-lead">
+          A passionate developer who builds <em>elegant, efficient</em> solutions to real problems.
+        </p>
+        <div class="about-body">
+          <p>Hello, I'm Kyrylo, a Backend Developer based in Vilnius, Lithuania. I care about the details: clean architecture, reliable systems, and code that is well-tested and built to last.</p>
+          <p>Currently working as a Programmer at ELGA, where I design and develop RESTful APIs using Python and Flask, integrate Supabase for real-time data handling, implement CI/CD pipelines, and maintain Linux server infrastructure.</p>
+          <p>Graduated with a Bachelor of Software Engineering from Vilnius University.</p>
+        </div>
+        <div class="about-fact-grid">
+          <div class="about-fact"><div class="af-label">Role</div><div class="af-val">Programmer · ELGA</div></div>
+          <div class="about-fact"><div class="af-label">Degree</div><div class="af-val">BSc Software Engineering</div></div>
+          <div class="about-fact"><div class="af-label">Location</div><div class="af-val">Siauliai, Lithuania</div></div>
+          <div class="about-fact"><div class="af-label">Status</div><div class="af-val" style="color:#16a34a;">Open to hire</div></div>
+        </div>
+        <div class="about-links">
+          <a href="{{ url_for('contact') }}" class="btn-primary">Get In Touch →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ── EXPERIENCE ────────────────────────────────────────────── #}
+<section class="s s-alt">
+  <div class="wrap">
+    <div class="s-head rv">
+      <div>
+        <div class="s-label">Background</div>
+        <h2 class="s-title">Experience &amp; <em>Education</em></h2>
+      </div>
+    </div>
+    <div class="exp-cols">
+      <div class="rv">
+        <div class="exp-col-head">Work Experience</div>
+        <div class="exp-item">
+          <div class="exp-period">Mar 2025 — Present</div>
+          <div class="exp-role">Programmer</div>
+          <div class="exp-org">ELGA · Siauliai, Lithuania</div>
+          <p class="exp-desc">Developing external APIs with visual interfaces using Flask, HTML, CSS, and JavaScript. Designing relational databases and maintaining the company's ERP system.</p>
+        </div>
+      </div>
+      <div class="rv d1">
+        <div class="exp-col-head">Education</div>
+        <div class="exp-item">
+          <div class="exp-period">2022 — 2026</div>
+          <div class="exp-role">BSc Software Engineering</div>
+          <div class="exp-org">Siauliai Academy · Lithuania</div>
+          <p class="exp-desc">Focus on software engineering, algorithms, and system architecture. Graduating 2026.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ── SKILLS ────────────────────────────────────────────────── #}
+<section class="s">
+  <div class="wrap">
+    <div class="s-head rv">
+      <div>
+        <div class="s-label">Technical Skills</div>
+        <h2 class="s-title">My <em>Stack</em></h2>
+      </div>
+    </div>
+    <div class="skills-table-wrap rv">
+      {% for category, items in skills.items() %}
+      <div class="skill-row">
+        <span class="sk-cat">{{ category }}</span>
+        <div class="sk-items">
+          {% for item in items %}<span class="sk-pill">{{ item }}</span>{% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% endblock %}

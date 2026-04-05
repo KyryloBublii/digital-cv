@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Work — Kyrylo Bublii{% endblock %}
+
+{% block content %}
+
+<section class="s s-alt">
+  <div class="wrap">
+    <div class="s-head rv">
+      <div>
+        <div class="s-label">Selected Work</div>
+        <h2 class="s-title">Side <em>Projects</em></h2>
+      </div>
+      <span class="s-count">{{ projects | length }} project{{ 's' if projects | length != 1 }}</span>
+    </div>
+    <div class="projects-grid">
+      {% for p in projects %}
+      <div class="proj-card rv{% if p.featured %} featured{% endif %}{% if not loop.first %} d{{ loop.index0 if loop.index0 <= 4 else 4 }}{% endif %}">
+        <div class="proj-screenshot">
+          {% if p.screenshot %}
+            <img src="{{ p.screenshot }}" alt="{{ p.title }} screenshot" loading="lazy" />
+          {% else %}
+            <div class="proj-screenshot-placeholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="2" y="3" width="20" height="14" rx="2"/><path d="m8 21 4-4 4 4M12 17v4"/>
+              </svg>
+              Screenshot coming soon
+            </div>
+          {% endif %}
+          <span class="proj-status-badge badge-{{ p.status }}">
+            {% if p.status == 'live' %}Live{% elif p.status == 'wip' %}In Progress{% else %}Archived{% endif %}
+          </span>
+        </div>
+        <div class="proj-body">
+          <div class="proj-title">{{ p.title }}</div>
+          <p class="proj-desc">{{ p.description }}</p>
+          <div class="proj-tags">
+            {% for tag in p.tags %}<span class="proj-tag">{{ tag }}</span>{% endfor %}
+          </div>
+          <div class="proj-footer">
+            <div class="proj-links">
+              {% if p.live_url %}<a href="{{ p.live_url }}" target="_blank" class="proj-link primary">Live Demo ↗</a>{% endif %}
+              {% if p.github_url %}<a href="{{ p.github_url }}" target="_blank" class="proj-link">GitHub ↗</a>{% endif %}
+            </div>
+            <span class="proj-year">{{ p.year }}</span>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% endblock %}
