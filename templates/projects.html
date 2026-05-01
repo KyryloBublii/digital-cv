@@ -26,9 +26,6 @@
               Screenshot coming soon
             </div>
           {% endif %}
-          <span class="proj-status-badge badge-{{ p.status }}">
-            {% if p.status == 'live' %}Live{% elif p.status == 'wip' %}In Progress{% else %}Archived{% endif %}
-          </span>
         </div>
         <div class="proj-body">
           <div class="proj-title">{{ p.title }}</div>
@@ -40,6 +37,7 @@
             <div class="proj-links">
               {% if p.live_url %}<a href="{{ p.live_url }}" target="_blank" class="proj-link primary">Live Demo ↗</a>{% endif %}
               {% if p.github_url %}<a href="{{ p.github_url }}" target="_blank" class="proj-link">GitHub ↗</a>{% endif %}
+              {% if p.slug %}<a href="{{ url_for('project_detail', slug=p.slug) }}" class="proj-link">Details →</a>{% endif %}
             </div>
             <span class="proj-year">{{ p.year }}</span>
           </div>

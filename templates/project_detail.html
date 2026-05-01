@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+{% block title %}{{ project.title }} / Kyrylo Bublii{% endblock %}
+
+{% block content %}
+
+<style>
+  .pd-hero {
+    padding: calc(var(--nav-h) + 56px) 0 56px;
+    border-bottom: 1px solid var(--ink-5);
+  }
+  .pd-back {
+    font-family: var(--fm);
+    font-size: 11px;
+    font-weight: 300;
+    letter-spacing: 0.04em;
+    color: var(--ink-3);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 32px;
+    transition: color 0.2s;
+  }
+  .pd-back:hover { color: var(--accent); }
+  .pd-title {
+    font-family: var(--fd);
+    font-size: clamp(32px, 5vw, 56px);
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+  .pd-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .pd-status {
+    font-family: var(--fm);
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    padding: 4px 10px;
+    border-radius: 100px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .pd-links { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  /* Gallery */
+  .pd-gallery {
+    margin-top: 48px;
+    display: grid;
+    gap: 16px;
+  }
+  .pd-gallery.has-thumbs { grid-template-columns: 2fr 1fr; }
+  .pd-photo-main {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 1px solid var(--ink-5);
+    background: var(--bg-2);
+    aspect-ratio: 16/9;
+  }
+  .pd-photo-main img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .pd-photo-thumbs { display: flex; flex-direction: column; gap: 16px; }
+  .pd-photo-thumb {
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--ink-5);
+    background: var(--bg-2);
+    flex: 1;
+    min-height: 0;
+  }
+  .pd-photo-thumb img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+
+  /* README */
+  .pd-readme { padding: 72px 0 80px; }
+  .readme-content {
+    max-width: 760px;
+    font-size: 15px;
+    font-weight: 300;
+    color: var(--ink-2);
+    line-height: 1.85;
+  }
+  .readme-content h1,
+  .readme-content h2,
+  .readme-content h3,
+  .readme-content h4,
+  .readme-content h5,
+  .readme-content h6 {
+    font-family: var(--fd);
+    font-weight: 400;
+    color: var(--ink);
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+    margin: 2em 0 0.6em;
+  }
+  .readme-content h1 { font-size: clamp(24px, 3vw, 36px); }
+  .readme-content h2 { font-size: clamp(20px, 2.5vw, 28px); }
+  .readme-content h3 { font-size: 20px; }
+  .readme-content h4 { font-size: 16px; font-family: var(--fb); }
+  .readme-content h1:first-child,
+  .readme-content h2:first-child { margin-top: 0; }
+  .readme-content p { margin-bottom: 1.2em; }
+  .readme-content a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: opacity 0.15s;
+  }
+  .readme-content a:hover { opacity: 0.75; }
+  .readme-content strong { font-weight: 500; color: var(--ink); }
+  .readme-content em { font-style: italic; }
+  .readme-content code {
+    font-family: var(--fm);
+    font-size: 13px;
+    background: var(--bg-2);
+    border: 1px solid var(--ink-5);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--ink);
+  }
+  .readme-content pre {
+    background: #1a1a1a;
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    overflow-x: auto;
+    margin: 1.5em 0;
+    border: 1px solid var(--ink-4);
+  }
+  .readme-content pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    color: #e8e4dc;
+    border-radius: 0;
+  }
+  .readme-content ul,
+  .readme-content ol { padding-left: 24px; margin-bottom: 1.2em; }
+  .readme-content li { margin-bottom: 0.4em; }
+  .readme-content blockquote {
+    border-left: 3px solid var(--accent);
+    margin: 1.5em 0;
+    padding: 12px 20px;
+    background: var(--accent-bg);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    color: var(--ink-2);
+    font-style: italic;
+  }
+  .readme-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5em 0;
+    font-size: 14px;
+  }
+  .readme-content th {
+    font-family: var(--fm);
+    font-size: 10.5px;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    background: var(--bg-2);
+    padding: 10px 14px;
+    border: 1px solid var(--ink-5);
+    text-align: left;
+  }
+  .readme-content td {
+    padding: 10px 14px;
+    border: 1px solid var(--ink-5);
+    color: var(--ink-2);
+    vertical-align: top;
+  }
+  .readme-content tr:hover td { background: var(--bg); }
+  .readme-content img {
+    border-radius: var(--radius);
+    max-width: 100%;
+    margin: 1em 0;
+    border: 1px solid var(--ink-5);
+  }
+  .readme-content hr { border: none; border-top: 1px solid var(--ink-5); margin: 2em 0; }
+
+  @media (max-width: 640px) {
+    .pd-gallery.has-thumbs { grid-template-columns: 1fr; }
+    .pd-photo-thumbs { flex-direction: row; }
+    .pd-photo-main { aspect-ratio: 4/3; }
+  }
+</style>
+
+{# ── HERO ────────────────────────────────────────────────────── #}
+<section class="pd-hero">
+  <div class="wrap">
+    <a href="{{ url_for('projects') }}" class="pd-back rv">← Back to Work</a>
+
+    <div class="rv d1">
+      <div class="s-label">{{ project.year }}</div>
+      <h1 class="pd-title">{{ project.title }}</h1>
+      <div class="pd-meta">
+        <div class="proj-tags" style="margin:0;">
+          {% for tag in project.tags %}<span class="proj-tag">{{ tag }}</span>{% endfor %}
+        </div>
+      </div>
+      <div class="pd-links">
+        {% if project.live_url %}
+          <a href="{{ project.live_url }}" target="_blank" class="btn-primary">Live Demo ↗</a>
+        {% endif %}
+        {% if project.github_url %}
+          <a href="{{ project.github_url }}" target="_blank" class="btn-ghost">GitHub ↗</a>
+        {% endif %}
+      </div>
+    </div>
+
+    {# ── GALLERY ─── #}
+    {% if project.photos %}
+    <div class="pd-gallery{% if project.photos | length > 1 %} has-thumbs{% endif %} rv d2">
+      <div class="pd-photo-main">
+        <img src="{{ project.photos[0] }}" alt="{{ project.title }}" loading="lazy" />
+      </div>
+      {% if project.photos | length > 1 %}
+      <div class="pd-photo-thumbs">
+        {% for photo in project.photos[1:3] %}
+        <div class="pd-photo-thumb">
+          <img src="{{ photo }}" alt="{{ project.title }} screenshot {{ loop.index + 1 }}" loading="lazy" />
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+{# ── README ──────────────────────────────────────────────────── #}
+{% if readme_html %}
+<section class="pd-readme">
+  <div class="wrap">
+    <div class="readme-content rv">
+      {{ readme_html | safe }}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}
