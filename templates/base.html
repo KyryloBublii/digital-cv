@@ -10,12 +10,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Geist:wght@300;400;500&family=Geist+Mono:wght@300;400&display=swap" rel="stylesheet" />
 
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- DaisyUI 4 CDN -->
-  <link href="https://cdn.jsdelivr.net/npm/daisyui@4/dist/full.min.css" rel="stylesheet" />
-
   <!-- Font Awesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
@@ -38,7 +32,7 @@
       <li><a href="{{ url_for('contact') }}"  {% if active_page == 'contact'  %}class="active"{% endif %}>Contact</a></li>
     </ul>
     <div class="nav-right">
-<a href="mailto:kirill.bubliy@gmail.com" class="nav-hire">Hire Me →</a>
+<a href="{{ url_for('contact') }}" class="nav-hire">Hire Me →</a>
     </div>
   </div>
 </nav>
@@ -66,15 +60,19 @@
 </footer>
 
 <script>
-  /* Scroll reveal */
-  const io = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('on'); io.unobserve(e.target); } });
-  }, { threshold: 0.07 });
-  document.querySelectorAll('.rv').forEach(el => io.observe(el));
+  /* Scroll reveal — guard against re-declaration on HTMX navigations */
+  if (!window._revealIO) {
+    window._revealIO = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('on'); window._revealIO.unobserve(e.target); }
+      });
+    }, { threshold: 0.07 });
+  }
+  document.querySelectorAll('.rv').forEach(el => window._revealIO.observe(el));
 
   /* Re-run reveal after HTMX swaps content */
   document.body.addEventListener('htmx:afterSwap', () => {
-    document.querySelectorAll('.rv:not(.on)').forEach(el => io.observe(el));
+    document.querySelectorAll('.rv:not(.on)').forEach(el => window._revealIO.observe(el));
   });
 </script>
 

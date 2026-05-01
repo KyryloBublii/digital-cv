@@ -3,6 +3,46 @@
 
 {% block content %}
 
+<style>
+  .contact-form { display: flex; flex-direction: column; gap: 16px; }
+  .cf-field { display: flex; flex-direction: column; gap: 6px; }
+  .cf-label {
+    font-family: var(--fm);
+    font-size: 10px;
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .cf-input {
+    font-family: var(--fb);
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--ink-5);
+    border-radius: var(--radius);
+    padding: 11px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+  .cf-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg); }
+  .cf-input::placeholder { color: var(--ink-4); }
+  .cf-textarea { resize: vertical; min-height: 130px; }
+  .cf-msg {
+    font-family: var(--fm);
+    font-size: 12px;
+    font-weight: 300;
+    letter-spacing: 0.03em;
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    margin-bottom: 4px;
+  }
+  .cf-ok  { background: rgba(34,197,94,0.08);  color: #16a34a; border: 1px solid rgba(34,197,94,0.2); }
+  .cf-err { background: rgba(239,68,68,0.08);  color: #dc2626; border: 1px solid rgba(239,68,68,0.2); }
+</style>
+
 <section class="s s-alt">
   <div class="wrap">
     <div class="s-head rv">
@@ -12,21 +52,61 @@
       </div>
     </div>
     <div class="contact-layout">
+
       <div class="rv">
         <p class="contact-note">
           Got a project, a role, or just a question? Send a message. I reply within a day.
         </p>
-        <a href="mailto:kirill.bubliy@gmail.com" class="contact-email">
-          kirill.bubliy@gmail.com →
-        </a>
+
+        {% if sent %}
+          <div class="cf-msg cf-ok">Message sent — I'll reply within 24 hours.</div>
+        {% elif error %}
+          <div class="cf-msg cf-err">Something went wrong. Please try again.</div>
+        {% endif %}
+
+        {% if turnstile_site_key %}
+        <script>
+          (function () {
+            if (window.turnstile) {
+              window.turnstile.implicitRender();
+            } else if (!document.querySelector('script[src*="turnstile"]')) {
+              var s = document.createElement('script');
+              s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+              s.async = true;
+              s.defer = true;
+              document.head.appendChild(s);
+            }
+          })();
+        </script>
+        {% endif %}
+        <form method="POST" action="{{ url_for('contact') }}" class="contact-form">
+          <div class="cf-field">
+            <label class="cf-label" for="cf-name">Name</label>
+            <input id="cf-name" type="text" name="name" class="cf-input" placeholder="Your name" required />
+          </div>
+          <div class="cf-field">
+            <label class="cf-label" for="cf-email">Email</label>
+            <input id="cf-email" type="email" name="email" class="cf-input" placeholder="your@email.com" required />
+          </div>
+          <div class="cf-field">
+            <label class="cf-label" for="cf-message">Message</label>
+            <textarea id="cf-message" name="message" class="cf-input cf-textarea" placeholder="What's on your mind?" required></textarea>
+          </div>
+          {% if turnstile_site_key %}
+          <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}" data-theme="light"></div>
+          {% endif %}
+          <div>
+            <button type="submit" class="btn-primary">Send Message →</button>
+          </div>
+        </form>
       </div>
+
       <div class="contact-right rv d1">
-        <div class="cdr"><span class="cdr-label">Phone</span><span class="cdr-val">+370 669 689 45</span></div>
-        <div class="cdr"><span class="cdr-label">Location</span><span class="cdr-val">Siauliai, Lithuania</span></div>
         <div class="cdr"><span class="cdr-label">Response</span><span class="cdr-val">Within 24 hours</span></div>
         <div class="cdr"><span class="cdr-label">GitHub</span><a href="https://github.com/KyryloBublii" target="_blank" class="cdr-link">github.com/KyryloBublii ↗</a></div>
         <div class="cdr"><span class="cdr-label">LinkedIn</span><a href="https://www.linkedin.com/in/kyrylobublii/" target="_blank" class="cdr-link">linkedin.com/in/kyrylobublii ↗</a></div>
       </div>
+
     </div>
   </div>
 </section>

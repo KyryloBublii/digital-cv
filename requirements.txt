@@ -1,2 +1,8 @@
 flask
 gunicorn
+requests
+markdown
+resend
+python-dotenv
+pytest
+responses
