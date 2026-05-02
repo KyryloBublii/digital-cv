@@ -27,7 +27,7 @@
     <a href="{{ url_for('index') }}" class="nav-logo">Kyrylo Bublii</a>
     <ul class="nav-links">
       <li><a href="{{ url_for('index') }}"    {% if active_page == 'home'     %}class="active"{% endif %}>Home</a></li>
-      <li><a href="{{ url_for('projects') }}" {% if active_page == 'projects' %}class="active"{% endif %}>Work</a></li>
+      <li><a href="{{ url_for('projects') }}" {% if active_page == 'projects' %}class="active"{% endif %}>Projects</a></li>
       <li><a href="{{ url_for('about') }}"    {% if active_page == 'about'    %}class="active"{% endif %}>About</a></li>
       <li><a href="{{ url_for('contact') }}"  {% if active_page == 'contact'  %}class="active"{% endif %}>Contact</a></li>
     </ul>
