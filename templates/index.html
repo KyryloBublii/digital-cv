@@ -12,15 +12,41 @@
           <span class="status-dot"></span>
           Open to full-time &amp; freelance
         </div>
-        <h1 class="hero-h1">
-          Full Stack<br><em>Developer</em>
-        </h1>
+        <div class="hero-title-block" id="hero-title-block">
+          <div class="hero-title-slide active" data-idx="0">
+            <span class="hero-title-line1">Full Stack</span>
+            <em class="hero-title-line2" style="color:#1a4ff5">Developer</em>
+          </div>
+          <div class="hero-title-slide" data-idx="1">
+            <span class="hero-title-line1">Data</span>
+            <em class="hero-title-line2" style="color:#0f6e56">Engineer</em>
+          </div>
+          <div class="hero-title-slide" data-idx="2">
+            <span class="hero-title-line1">Backend</span>
+            <em class="hero-title-line2" style="color:#7f77dd">Developer</em>
+          </div>
+          <div class="hero-title-slide" data-idx="3">
+            <span class="hero-title-line1">Python</span>
+            <em class="hero-title-line2" style="color:#ba7517">Developer</em>
+          </div>
+          <div class="hero-title-slide" data-idx="4">
+            <span class="hero-title-line1">Java</span>
+            <em class="hero-title-line2" style="color:#a32d2d">Developer</em>
+          </div>
+        </div>
         <p class="hero-desc">
           I build web apps, mostly on the backend. My work spans APIs, internal tools and freelance projects. On the data side I design schemas, write ETL pipelines and work with PostgreSQL.
         </p>
         <div class="hero-btns">
-          <a href="{{ url_for('projects') }}" class="btn-primary">View My Work →</a>
+          <a href="{{ url_for('projects') }}" class="btn-primary" id="hero-cta" style="background:#1a4ff5">View My Work →</a>
           <a href="{{ url_for('contact') }}"  class="btn-ghost">Get In Touch</a>
+        </div>
+        <div class="hero-dots" id="hero-dots">
+          <span class="hero-dot active" style="background:#1a4ff5"></span>
+          <span class="hero-dot"></span>
+          <span class="hero-dot"></span>
+          <span class="hero-dot"></span>
+          <span class="hero-dot"></span>
         </div>
       </div>
       <div class="hero-right">
@@ -108,5 +134,34 @@
     </div>
   </div>
 </section>
+
+<script>
+(function () {
+  const colors = ['#1a4ff5', '#0f6e56', '#7f77dd', '#ba7517', '#a32d2d'];
+  const slides = document.querySelectorAll('#hero-title-block .hero-title-slide');
+  const dots   = document.querySelectorAll('#hero-dots .hero-dot');
+  const cta    = document.getElementById('hero-cta');
+  let current  = 0;
+
+  function next() {
+    slides[current].classList.remove('active');
+    slides[current].classList.add('exit');
+    const exiting = current;
+    setTimeout(() => slides[exiting].classList.remove('exit'), 400);
+
+    dots[current].classList.remove('active');
+    dots[current].style.background = 'rgba(0,0,0,0.15)';
+
+    current = (current + 1) % slides.length;
+
+    slides[current].classList.add('active');
+    dots[current].classList.add('active');
+    dots[current].style.background = colors[current];
+    cta.style.background = colors[current];
+  }
+
+  setInterval(next, 2800);
+})();
+</script>
 
 {% endblock %}
