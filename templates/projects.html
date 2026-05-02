@@ -10,11 +10,20 @@
         <div class="s-label">Selected Work</div>
         <h2 class="s-title">Side <em>Projects</em></h2>
       </div>
-      <span class="s-count">{{ projects | length }} project{{ 's' if projects | length != 1 }}</span>
+      <span class="s-count" id="proj-count">{{ projects | length }} project{{ 's' if projects | length != 1 }}</span>
     </div>
-    <div class="projects-grid">
+
+    <div class="tag-filters rv">
+      <button class="tag-filter-btn active" data-tag="all">All</button>
+      {% for tag in all_tags %}
+      <button class="tag-filter-btn" data-tag="{{ tag }}">{{ tag }}</button>
+      {% endfor %}
+    </div>
+
+    <div class="projects-grid" id="projects-grid">
       {% for p in projects %}
-      <div class="proj-card rv{% if p.featured %} featured{% endif %}{% if not loop.first %} d{{ loop.index0 if loop.index0 <= 4 else 4 }}{% endif %}">
+      <div class="proj-card rv{% if p.featured %} featured{% endif %}{% if not loop.first %} d{{ loop.index0 if loop.index0 <= 4 else 4 }}{% endif %}"
+           data-tags="{{ p.tags | join(',') }}">
         <div class="proj-screenshot">
           {% if p.screenshot %}
             <img src="{{ p.screenshot }}" alt="{{ p.title }} screenshot" loading="lazy" />
@@ -47,5 +56,49 @@
     </div>
   </div>
 </section>
+
+<script>
+  (function () {
+    const btns   = document.querySelectorAll('.tag-filter-btn');
+    const allBtn = document.querySelector('.tag-filter-btn[data-tag="all"]');
+    const cards  = document.querySelectorAll('#projects-grid .proj-card');
+    const count  = document.getElementById('proj-count');
+    let selected = new Set();
+
+    function applyFilter() {
+      let visible = 0;
+      cards.forEach(card => {
+        const tags = card.dataset.tags ? card.dataset.tags.split(',') : [];
+        const show = selected.size === 0 || tags.some(t => selected.has(t));
+        card.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      count.textContent = `${visible} project${visible !== 1 ? 's' : ''}`;
+    }
+
+    allBtn.addEventListener('click', () => {
+      selected.clear();
+      btns.forEach(b => b.classList.remove('active'));
+      allBtn.classList.add('active');
+      applyFilter();
+    });
+
+    btns.forEach(btn => {
+      if (btn === allBtn) return;
+      btn.addEventListener('click', () => {
+        const tag = btn.dataset.tag;
+        if (selected.has(tag)) {
+          selected.delete(tag);
+          btn.classList.remove('active');
+        } else {
+          selected.add(tag);
+          btn.classList.add('active');
+        }
+        allBtn.classList.toggle('active', selected.size === 0);
+        applyFilter();
+      });
+    });
+  })();
+</script>
 
 {% endblock %}

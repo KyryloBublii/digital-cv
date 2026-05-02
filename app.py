@@ -61,7 +61,8 @@ def index():
 @app.route("/projects")
 def projects():
     all_projects = _get_projects()
-    return render_template("projects.html", active_page="projects", projects=all_projects)
+    all_tags = sorted({tag for p in all_projects for tag in p.get("tags", [])})
+    return render_template("projects.html", active_page="projects", projects=all_projects, all_tags=all_tags)
 
 
 @app.route("/projects/<slug>")
