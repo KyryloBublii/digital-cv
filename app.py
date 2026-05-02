@@ -5,7 +5,7 @@ import resend
 import requests
 from dotenv import load_dotenv
 from flask import Flask, render_template, request
-from data.projects import SKILLS
+from data.profile import get_profile
 
 load_dotenv()
 
@@ -80,7 +80,16 @@ def project_detail(slug):
 
 @app.route("/about")
 def about():
-    return render_template("about.html", active_page="about", skills=SKILLS)
+    profile = get_profile()
+    return render_template(
+        "about.html",
+        active_page="about",
+        profile=profile,
+        skills=profile.get("skills") if isinstance(profile.get("skills"), dict) else {"Skills": profile.get("skills", [])},
+        experience=profile.get("experience", []),
+        education=profile.get("education", []),
+        certifications=profile.get("certifications", []),
+    )
 
 
 @app.route("/contact", methods=["GET", "POST"])

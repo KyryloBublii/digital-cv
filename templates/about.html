@@ -54,21 +54,25 @@
     <div class="exp-cols">
       <div class="rv">
         <div class="exp-col-head">Work Experience</div>
+        {% for item in experience %}
         <div class="exp-item">
-          <div class="exp-period">Mar 2025 - Present</div>
-          <div class="exp-role">Programmer</div>
-          <div class="exp-org">ELGA · Siauliai, Lithuania</div>
-          <p class="exp-desc">Building APIs and web interfaces with Flask, working with relational databases, and keeping the ERP system in shape. Small team, so the scope is pretty wide.</p>
+          <div class="exp-period">{{ item.period_start }}{% if item.period_end %} – {{ item.period_end }}{% endif %}</div>
+          <div class="exp-role">{{ item.role }}</div>
+          <div class="exp-org">{{ item.org }}{% if item.location %} · {{ item.location }}{% endif %}</div>
+          {% if item.description %}<p class="exp-desc">{{ item.description }}</p>{% endif %}
         </div>
+        {% endfor %}
       </div>
       <div class="rv d1">
         <div class="exp-col-head">Education</div>
+        {% for item in education %}
         <div class="exp-item">
-          <div class="exp-period">2022 - 2026</div>
-          <div class="exp-role">BSc Software Engineering</div>
-          <div class="exp-org">Siauliai Academy · Lithuania</div>
-          <p class="exp-desc">Software engineering, algorithms, databases. Graduating in 2026.</p>
+          <div class="exp-period">{{ item.period }}</div>
+          <div class="exp-role">{{ item.title }}</div>
+          <div class="exp-org">{{ item.org }}</div>
+          {% if item.description %}<p class="exp-desc">{{ item.description }}</p>{% endif %}
         </div>
+        {% endfor %}
       </div>
     </div>
   </div>
@@ -106,31 +110,19 @@
       </div>
     </div>
     <div class="certs-list">
-
-      <div class="cert-item rv">
+      {% for cert in certifications %}
+      <div class="cert-item rv{% if loop.index > 1 %} d1{% endif %}">
         <div class="cert-meta">
-          <div class="cert-issuer">EPAM Systems</div>
-          <div class="cert-date">Jun 2025</div>
+          <div class="cert-issuer">{{ cert.issuer }}</div>
+          <div class="cert-date">{{ cert.date }}</div>
         </div>
         <div class="cert-body">
-          <div class="cert-name">Data Analytics Engineering — Stage 1 Fundamentals</div>
-          <p class="cert-desc">SQL Basics, DML, TCL, DDL, DCL, OLAP/OLTP, Window Functions &amp; Frames.</p>
-          <a href="https://certificates.epam.com/certificates/417ddd11-0d23-40e3-97a2-d013794cb23d" target="_blank" class="cert-link">View Certificate ↗</a>
+          <div class="cert-name">{{ cert.name }}</div>
+          {% if cert.description %}<p class="cert-desc">{{ cert.description }}</p>{% endif %}
+          {% if cert.url %}<a href="{{ cert.url }}" target="_blank" class="cert-link">View Certificate ↗</a>{% endif %}
         </div>
       </div>
-
-      <div class="cert-item rv d1">
-        <div class="cert-meta">
-          <div class="cert-issuer">LT VCA</div>
-          <div class="cert-date">May 2025</div>
-        </div>
-        <div class="cert-body">
-          <div class="cert-name">Break into the Finance World</div>
-          <p class="cert-desc">Course covering core finance concepts, completed with a passing exam.</p>
-          <a href="https://credsverse.com/credentials/04d30edb-303c-48d7-afe1-a2bdb25390ea" target="_blank" class="cert-link">View Certificate ↗</a>
-        </div>
-      </div>
-
+      {% endfor %}
     </div>
   </div>
 </section>
