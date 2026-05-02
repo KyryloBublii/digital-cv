@@ -99,23 +99,57 @@
   </div>
 </section>
 
-<script type="module">
-  import { roles } from "{{ url_for('static', filename='js/roles.js') }}";
+<script>
+(function () {
+  const roles = [
+    {
+      title: ["Data", "Engineer"],
+      color: "#0f6e56",
+      stack: {
+        primary:   ["Python", "ETL"],
+        secondary: ["PostgreSQL", "SQL"],
+      },
+    },
+    {
+      title: ["Backend", "Developer"],
+      color: "#7f77dd",
+      stack: {
+        primary:   ["Java", "Python"],
+        secondary: ["Spring", "Docker", "REST APIs", "PostgreSQL"],
+      },
+    },
+    {
+      title: ["Python", "Developer"],
+      color: "#ba7517",
+      stack: {
+        primary:   ["Python", "FastAPI", "Django"],
+        secondary: ["SQLAlchemy", "Supabase", "pytest"],
+      },
+    },
+    {
+      title: ["Java", "Developer"],
+      color: "#a32d2d",
+      stack: {
+        primary:   ["Java", "Spring Boot"],
+        secondary: ["Maven", "JUnit", "Hibernate", "REST APIs"],
+      },
+    },
+  ];
 
   // ── Build title slides ────────────────────────────────────────
   const titleBlock = document.getElementById('hero-title-block');
-  roles.forEach((role, i) => {
+  roles.forEach(function (role, i) {
     const slide = document.createElement('div');
     slide.className = 'hero-title-slide' + (i === 0 ? ' active' : '');
-    slide.dataset.idx = i;
-    slide.innerHTML = `<span class="hero-title-line1">${role.title[0]}</span>
-                       <em class="hero-title-line2" style="color:${role.color}">${role.title[1]}</em>`;
+    slide.innerHTML =
+      '<span class="hero-title-line1">' + role.title[0] + '</span>' +
+      '<em class="hero-title-line2" style="color:' + role.color + '">' + role.title[1] + '</em>';
     titleBlock.appendChild(slide);
   });
 
   // ── Build dots ────────────────────────────────────────────────
   const dotsEl = document.getElementById('hero-dots');
-  roles.forEach((role, i) => {
+  roles.forEach(function (role, i) {
     const dot = document.createElement('span');
     dot.className = 'hero-dot' + (i === 0 ? ' active' : '');
     dot.style.background = i === 0 ? role.color : 'rgba(0,0,0,0.15)';
@@ -124,15 +158,17 @@
 
   // ── Build chip groups ─────────────────────────────────────────
   const chipsWrap = document.getElementById('stack-chips-wrap');
-  roles.forEach((role, i) => {
+  roles.forEach(function (role, i) {
     const group = document.createElement('div');
     group.className = 'stack-chips-group' + (i === 0 ? ' active' : '');
-    group.dataset.idx = i;
-    const chips = [
-      ...role.stack.primary.map(t => `<span class="stack-chip primary">${t}</span>`),
-      ...role.stack.secondary.map(t => `<span class="stack-chip">${t}</span>`),
-    ];
-    group.innerHTML = chips.join('');
+    var html = '';
+    role.stack.primary.forEach(function (t) {
+      html += '<span class="stack-chip primary">' + t + '</span>';
+    });
+    role.stack.secondary.forEach(function (t) {
+      html += '<span class="stack-chip">' + t + '</span>';
+    });
+    group.innerHTML = html;
     chipsWrap.appendChild(group);
   });
 
@@ -152,7 +188,7 @@
     slides[current].classList.remove('active');
     slides[current].classList.add('exit');
     const exiting = current;
-    setTimeout(() => slides[exiting].classList.remove('exit'), 400);
+    setTimeout(function () { slides[exiting].classList.remove('exit'); }, 400);
 
     dots[current].classList.remove('active');
     dots[current].style.background = 'rgba(0,0,0,0.15)';
@@ -160,7 +196,7 @@
     chipGroups[current].classList.remove('active');
     chipGroups[current].classList.add('exit');
     const exitingChips = current;
-    setTimeout(() => chipGroups[exitingChips].classList.remove('exit'), 400);
+    setTimeout(function () { chipGroups[exitingChips].classList.remove('exit'); }, 400);
 
     current = (current + 1) % roles.length;
 
@@ -173,6 +209,7 @@
   }
 
   setInterval(next, 2800);
+})();
 </script>
 
 {% endblock %}
