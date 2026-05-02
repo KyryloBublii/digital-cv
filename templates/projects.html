@@ -3,11 +3,10 @@
 
 {% block content %}
 
-<section class="s s-alt">
+<section class="s s-alt" id="projects-top">
   <div class="wrap">
     <div class="s-head rv">
       <div>
-        <div class="s-label">Selected Work</div>
         <h2 class="s-title">Side <em>Projects</em></h2>
       </div>
       <span class="s-count" id="proj-count">{{ projects | length }} project{{ 's' if projects | length != 1 }}</span>
@@ -56,6 +55,18 @@
     </div>
   </div>
 </section>
+
+<script>
+  (function () {
+    const sLabel = document.querySelector('.s-label');
+    if (sLabel) {
+      document.documentElement.style.setProperty(
+        '--s-label-h',
+        sLabel.offsetHeight + 'px'
+      );
+    }
+  })();
+</script>
 
 <script>
   (function () {
