@@ -12,43 +12,27 @@
           <span class="status-dot"></span>
           Open to full-time &amp; freelance
         </div>
-        <div class="hero-title-block" id="hero-title-block">
-          <div class="hero-title-slide active" data-idx="0">
-            <span class="hero-title-line1">Full Stack</span>
-            <em class="hero-title-line2" style="color:#1a4ff5">Developer</em>
-          </div>
-          <div class="hero-title-slide" data-idx="1">
-            <span class="hero-title-line1">Data</span>
-            <em class="hero-title-line2" style="color:#0f6e56">Engineer</em>
-          </div>
-          <div class="hero-title-slide" data-idx="2">
-            <span class="hero-title-line1">Backend</span>
-            <em class="hero-title-line2" style="color:#7f77dd">Developer</em>
-          </div>
-          <div class="hero-title-slide" data-idx="3">
-            <span class="hero-title-line1">Python</span>
-            <em class="hero-title-line2" style="color:#ba7517">Developer</em>
-          </div>
-          <div class="hero-title-slide" data-idx="4">
-            <span class="hero-title-line1">Java</span>
-            <em class="hero-title-line2" style="color:#a32d2d">Developer</em>
-          </div>
-        </div>
+        <div class="hero-title-block" id="hero-title-block"></div>
         <p class="hero-desc">
           I build web apps, mostly on the backend. My work spans APIs, internal tools and freelance projects. On the data side I design schemas, write ETL pipelines and work with PostgreSQL.
         </p>
         <div class="hero-btns">
-          <a href="{{ url_for('projects') }}" class="btn-primary" id="hero-cta" style="background:#1a4ff5">View My Work →</a>
+          <a href="{{ url_for('projects') }}" class="btn-primary" id="hero-cta">View My Work →</a>
           <a href="{{ url_for('contact') }}"  class="btn-ghost">Get In Touch</a>
         </div>
-        <div class="hero-dots" id="hero-dots">
-          <span class="hero-dot active" style="background:#1a4ff5"></span>
-          <span class="hero-dot"></span>
-          <span class="hero-dot"></span>
-          <span class="hero-dot"></span>
-          <span class="hero-dot"></span>
+        <div class="hero-dots" id="hero-dots"></div>
+      </div>
+
+      <div class="hero-right">
+        <div class="stack-card" id="stack-card">
+          <div class="stack-card-bar" id="stack-card-bar"></div>
+          <div class="stack-card-inner">
+            <div class="stack-label">Stack</div>
+            <div class="stack-chips-wrap" id="stack-chips-wrap"></div>
+          </div>
         </div>
       </div>
+
     </div>
   </div>
 </section>
@@ -115,13 +99,54 @@
   </div>
 </section>
 
-<script>
-(function () {
-  const colors = ['#1a4ff5', '#0f6e56', '#7f77dd', '#ba7517', '#a32d2d'];
-  const slides = document.querySelectorAll('#hero-title-block .hero-title-slide');
-  const dots   = document.querySelectorAll('#hero-dots .hero-dot');
-  const cta    = document.getElementById('hero-cta');
-  let current  = 0;
+<script type="module">
+  import { roles } from "{{ url_for('static', filename='js/roles.js') }}";
+
+  // ── Build title slides ────────────────────────────────────────
+  const titleBlock = document.getElementById('hero-title-block');
+  roles.forEach((role, i) => {
+    const slide = document.createElement('div');
+    slide.className = 'hero-title-slide' + (i === 0 ? ' active' : '');
+    slide.dataset.idx = i;
+    slide.innerHTML = `<span class="hero-title-line1">${role.title[0]}</span>
+                       <em class="hero-title-line2" style="color:${role.color}">${role.title[1]}</em>`;
+    titleBlock.appendChild(slide);
+  });
+
+  // ── Build dots ────────────────────────────────────────────────
+  const dotsEl = document.getElementById('hero-dots');
+  roles.forEach((role, i) => {
+    const dot = document.createElement('span');
+    dot.className = 'hero-dot' + (i === 0 ? ' active' : '');
+    dot.style.background = i === 0 ? role.color : 'rgba(0,0,0,0.15)';
+    dotsEl.appendChild(dot);
+  });
+
+  // ── Build chip groups ─────────────────────────────────────────
+  const chipsWrap = document.getElementById('stack-chips-wrap');
+  roles.forEach((role, i) => {
+    const group = document.createElement('div');
+    group.className = 'stack-chips-group' + (i === 0 ? ' active' : '');
+    group.dataset.idx = i;
+    const chips = [
+      ...role.stack.primary.map(t => `<span class="stack-chip primary">${t}</span>`),
+      ...role.stack.secondary.map(t => `<span class="stack-chip">${t}</span>`),
+    ];
+    group.innerHTML = chips.join('');
+    chipsWrap.appendChild(group);
+  });
+
+  // ── Set initial bar + CTA color ───────────────────────────────
+  const bar = document.getElementById('stack-card-bar');
+  const cta = document.getElementById('hero-cta');
+  bar.style.background = roles[0].color;
+  cta.style.background = roles[0].color;
+
+  // ── Rotation ──────────────────────────────────────────────────
+  const slides     = document.querySelectorAll('#hero-title-block .hero-title-slide');
+  const dots       = document.querySelectorAll('#hero-dots .hero-dot');
+  const chipGroups = document.querySelectorAll('#stack-chips-wrap .stack-chips-group');
+  let current      = 0;
 
   function next() {
     slides[current].classList.remove('active');
@@ -132,16 +157,22 @@
     dots[current].classList.remove('active');
     dots[current].style.background = 'rgba(0,0,0,0.15)';
 
-    current = (current + 1) % slides.length;
+    chipGroups[current].classList.remove('active');
+    chipGroups[current].classList.add('exit');
+    const exitingChips = current;
+    setTimeout(() => chipGroups[exitingChips].classList.remove('exit'), 400);
+
+    current = (current + 1) % roles.length;
 
     slides[current].classList.add('active');
     dots[current].classList.add('active');
-    dots[current].style.background = colors[current];
-    cta.style.background = colors[current];
+    dots[current].style.background = roles[current].color;
+    cta.style.background           = roles[current].color;
+    bar.style.background           = roles[current].color;
+    chipGroups[current].classList.add('active');
   }
 
   setInterval(next, 2800);
-})();
 </script>
 
 {% endblock %}

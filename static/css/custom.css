@@ -171,6 +171,81 @@ nav {
 #hero-cta { transition: background 0.5s ease; }
 
 /* ═══════════════════════════════════════════════
+   HERO — stack card
+═══════════════════════════════════════════════ */
+.stack-card {
+  background: #15141a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.stack-card-bar {
+  height: 3px;
+  width: 100%;
+  flex-shrink: 0;
+  transition: background 0.5s ease;
+}
+.stack-card-inner {
+  padding: 28px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.stack-label {
+  font-family: var(--fm);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.3);
+}
+.stack-chips-wrap {
+  position: relative;
+  flex: 1;
+  min-height: 120px;
+}
+.stack-chips-group {
+  position: absolute;
+  top: 0; left: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.stack-chips-group.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+.stack-chips-group.exit {
+  opacity: 0;
+  transform: translateY(-12px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.stack-chip {
+  font-family: var(--fm);
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 5px 11px;
+  border-radius: 6px;
+}
+.stack-chip.primary {
+  color: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.15);
+  font-weight: 400;
+}
+
+/* ═══════════════════════════════════════════════
    HERO
 ═══════════════════════════════════════════════ */
 #home {
@@ -884,6 +959,7 @@ footer {
     padding: 60px 0;
   }
   .hero-right { display: none; }
+  .stack-card { display: none; }
 
   /* Sections */
   .s { padding: 64px 0; }
