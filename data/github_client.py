@@ -50,7 +50,7 @@ def fetch_readme(username: str, repo: str) -> str | None:
 
 
 def fetch_photos(username: str, repo: str) -> tuple[str | None, list[str]]:
-    r = _get(f"{_API}/repos/{username}/{repo}/contents/proj_photo")
+    r = _get(f"{_API}/repos/{username}/{repo}/contents/project_images")
     if r is None:
         return None, []
 
