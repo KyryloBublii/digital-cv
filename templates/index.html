@@ -101,114 +101,147 @@
 
 <script>
 (function () {
-  const roles = [
-    {
-      title: ["Data", "Engineer"],
-      color: "#0f6e56",
-      stack: {
-        primary:   ["Python", "ETL"],
-        secondary: ["PostgreSQL", "SQL"],
-      },
-    },
-    {
-      title: ["Backend", "Developer"],
-      color: "#7f77dd",
-      stack: {
-        primary:   ["Java", "Python"],
-        secondary: ["Spring", "Docker", "REST APIs", "PostgreSQL"],
-      },
-    },
-    {
-      title: ["Python", "Developer"],
-      color: "#ba7517",
-      stack: {
-        primary:   ["Python", "FastAPI", "Django"],
-        secondary: ["SQLAlchemy", "Supabase", "pytest"],
-      },
-    },
-    {
-      title: ["Java", "Developer"],
-      color: "#a32d2d",
-      stack: {
-        primary:   ["Java", "Spring Boot"],
-        secondary: ["Maven", "JUnit", "Hibernate", "REST APIs"],
-      },
-    },
+  var roles = [
+    { title: ["Data",    "Engineer"],  color: "#0f6e56", stack: { primary: ["Python", "ETL"],               secondary: ["PostgreSQL", "SQL"] } },
+    { title: ["Backend", "Developer"], color: "#7f77dd", stack: { primary: ["Java", "Python"],              secondary: ["Spring", "Docker", "REST APIs", "PostgreSQL"] } },
+    { title: ["Python",  "Developer"], color: "#ba7517", stack: { primary: ["Python", "FastAPI", "Django"], secondary: ["SQLAlchemy", "Supabase", "pytest"] } },
+    { title: ["Java",    "Developer"], color: "#a32d2d", stack: { primary: ["Java", "Spring Boot"],         secondary: ["Maven", "JUnit", "Hibernate", "REST APIs"] } },
   ];
 
-  // ── Build title slides ────────────────────────────────────────
-  const titleBlock = document.getElementById('hero-title-block');
-  roles.forEach(function (role, i) {
-    const slide = document.createElement('div');
-    slide.className = 'hero-title-slide' + (i === 0 ? ' active' : '');
-    slide.innerHTML =
-      '<span class="hero-title-line1">' + role.title[0] + '</span>' +
-      '<em class="hero-title-line2" style="color:' + role.color + '">' + role.title[1] + '</em>';
-    titleBlock.appendChild(slide);
-  });
+  // ── Build typewriter title ────────────────────────────────────
+  var titleBlock = document.getElementById('hero-title-block');
+  var twLine1 = document.createElement('span');
+  twLine1.className = 'hero-title-line1';
+  var twLine2 = document.createElement('em');
+  twLine2.className = 'hero-title-line2';
+  twLine2.id = 'tw-line2';
+  titleBlock.appendChild(twLine1);
+  titleBlock.appendChild(twLine2);
 
   // ── Build dots ────────────────────────────────────────────────
-  const dotsEl = document.getElementById('hero-dots');
+  var dotsEl = document.getElementById('hero-dots');
   roles.forEach(function (role, i) {
-    const dot = document.createElement('span');
+    var dot = document.createElement('span');
     dot.className = 'hero-dot' + (i === 0 ? ' active' : '');
     dot.style.background = i === 0 ? role.color : 'rgba(0,0,0,0.15)';
     dotsEl.appendChild(dot);
   });
 
   // ── Build chip groups ─────────────────────────────────────────
-  const chipsWrap = document.getElementById('stack-chips-wrap');
+  var chipsWrap = document.getElementById('stack-chips-wrap');
   roles.forEach(function (role, i) {
-    const group = document.createElement('div');
+    var group = document.createElement('div');
     group.className = 'stack-chips-group' + (i === 0 ? ' active' : '');
     var html = '';
-    role.stack.primary.forEach(function (t) {
-      html += '<span class="stack-chip primary">' + t + '</span>';
-    });
-    role.stack.secondary.forEach(function (t) {
-      html += '<span class="stack-chip">' + t + '</span>';
-    });
+    role.stack.primary.forEach(function (t)   { html += '<span class="stack-chip primary">' + t + '</span>'; });
+    role.stack.secondary.forEach(function (t) { html += '<span class="stack-chip">' + t + '</span>'; });
     group.innerHTML = html;
     chipsWrap.appendChild(group);
   });
 
-  // ── Set initial bar + CTA color ───────────────────────────────
-  const bar = document.getElementById('stack-card-bar');
-  const cta = document.getElementById('hero-cta');
+  // ── Initial state ─────────────────────────────────────────────
+  var bar = document.getElementById('stack-card-bar');
+  var cta = document.getElementById('hero-cta');
+  var current = 0;
+
+  twLine1.textContent  = roles[0].title[0];
+  twLine2.textContent  = roles[0].title[1];
+  twLine2.style.color  = roles[0].color;
   bar.style.background = roles[0].color;
   cta.style.background = roles[0].color;
 
-  // ── Rotation ──────────────────────────────────────────────────
-  const slides     = document.querySelectorAll('#hero-title-block .hero-title-slide');
-  const dots       = document.querySelectorAll('#hero-dots .hero-dot');
-  const chipGroups = document.querySelectorAll('#stack-chips-wrap .stack-chips-group');
-  let current      = 0;
+  // ── Typewriter helpers ────────────────────────────────────────
+  function typeInto(el, text, speed, cb) {
+    var i = 0;
+    function tick() {
+      el.textContent = text.slice(0, i);
+      i++;
+      if (i <= text.length) { setTimeout(tick, speed); }
+      else { cb && cb(); }
+    }
+    tick();
+  }
 
-  function next() {
-    slides[current].classList.remove('active');
-    slides[current].classList.add('exit');
-    const exiting = current;
-    setTimeout(function () { slides[exiting].classList.remove('exit'); }, 400);
+  function deleteFrom(el, speed, cb) {
+    function tick() {
+      if (el.textContent.length === 0) { cb && cb(); return; }
+      el.textContent = el.textContent.slice(0, -1);
+      setTimeout(tick, speed);
+    }
+    tick();
+  }
 
-    dots[current].classList.remove('active');
-    dots[current].style.background = 'rgba(0,0,0,0.15)';
-
-    chipGroups[current].classList.remove('active');
-    chipGroups[current].classList.add('exit');
-    const exitingChips = current;
-    setTimeout(function () { chipGroups[exitingChips].classList.remove('exit'); }, 400);
-
+  // ── Update dots + chips ───────────────────────────────────────
+  function advanceRole() {
+    var prev = current;
     current = (current + 1) % roles.length;
+    var role = roles[current];
 
-    slides[current].classList.add('active');
-    dots[current].classList.add('active');
-    dots[current].style.background = roles[current].color;
-    cta.style.background           = roles[current].color;
-    bar.style.background           = roles[current].color;
+    bar.style.background = role.color;
+    cta.style.background = role.color;
+    twLine2.style.color  = role.color;
+
+    document.querySelectorAll('#hero-dots .hero-dot').forEach(function (d, i) {
+      d.classList.toggle('active', i === current);
+      d.style.background = i === current ? role.color : 'rgba(0,0,0,0.15)';
+    });
+
+    var chipGroups = document.querySelectorAll('#stack-chips-wrap .stack-chips-group');
+    chipGroups[prev].classList.remove('active');
+    chipGroups[prev].classList.add('exit');
+    setTimeout(function () { chipGroups[prev].classList.remove('exit'); }, 400);
     chipGroups[current].classList.add('active');
   }
 
-  setInterval(next, 2800);
+  // ── Cycle ─────────────────────────────────────────────────────
+  function cycle() {
+    deleteFrom(twLine2, 38, function () {
+      setTimeout(function () {
+        deleteFrom(twLine1, 38, function () {
+          advanceRole();
+          setTimeout(function () {
+            typeInto(twLine1, roles[current].title[0], 58, function () {
+              setTimeout(function () {
+                typeInto(twLine2, roles[current].title[1], 58, function () {
+                  setTimeout(cycle, 2400);
+                });
+              }, 80);
+            });
+          }, 150);
+        });
+      }, 80);
+    });
+  }
+
+  setTimeout(cycle, 2800);
+
+  // ── Mouse parallax ────────────────────────────────────────────
+  function initParallax() {
+    var hero     = document.getElementById('home');
+    if (!hero) return;
+    var heroLeft  = hero.querySelector('.hero-left');
+    var heroRight = hero.querySelector('.hero-right');
+    if (!heroLeft || !heroRight) return;
+
+    function onMove(e) {
+      var rect = hero.getBoundingClientRect();
+      var cx = (e.clientX - rect.left)  / rect.width  - 0.5;
+      var cy = (e.clientY - rect.top)   / rect.height - 0.5;
+      heroLeft.style.transform  = 'translate(' + (cx *  6).toFixed(2) + 'px,' + (cy *  6).toFixed(2) + 'px)';
+      heroRight.style.transform = 'translate(' + (cx * 14).toFixed(2) + 'px,' + (cy * 14).toFixed(2) + 'px)';
+    }
+
+    function onLeave() {
+      heroLeft.style.transform  = '';
+      heroRight.style.transform = '';
+    }
+
+    hero.addEventListener('mousemove', onMove);
+    hero.addEventListener('mouseleave', onLeave);
+  }
+
+  initParallax();
+  document.body.addEventListener('htmx:afterSwap', initParallax);
 })();
 </script>
 

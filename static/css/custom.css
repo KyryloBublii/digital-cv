@@ -122,27 +122,8 @@ nav {
    HERO — cycling title
 ═══════════════════════════════════════════════ */
 .hero-title-block {
-  position: relative;
-  height: calc(clamp(40px, 6vw, 68px) * 2 * 1.08);
-  overflow: hidden;
+  min-height: calc(clamp(40px, 6vw, 68px) * 2 * 1.08);
   margin-bottom: 20px;
-}
-.hero-title-slide {
-  position: absolute;
-  top: 0; left: 0;
-  opacity: 0;
-  transform: translateY(14px);
-  transition: opacity 0.45s ease, transform 0.45s ease;
-  line-height: 1.08;
-}
-.hero-title-slide.active {
-  opacity: 1;
-  transform: translateY(0);
-}
-.hero-title-slide.exit {
-  opacity: 0;
-  transform: translateY(-14px);
-  transition: opacity 0.35s ease, transform 0.35s ease;
 }
 .hero-title-line1,
 .hero-title-line2 {
@@ -346,7 +327,8 @@ nav {
 .btn-ghost:hover { border-color: var(--ink-2); color: var(--ink); }
 
 /* Hero right — quick facts */
-.hero-right { animation: up 0.7s 0.22s var(--spring) both; }
+.hero-left  { transition: transform 0.12s ease-out; }
+.hero-right { animation: up 0.7s 0.22s var(--spring) both; transition: transform 0.12s ease-out; }
 .hero-facts {
   background: var(--surface);
   border: 1px solid var(--ink-5);
@@ -944,6 +926,16 @@ footer {
 .d4 { transition-delay: 0.32s; }
 
 @keyframes up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+#tw-line2::after {
+  content: '|';
+  display: inline-block;
+  animation: blink 0.7s step-end infinite;
+  font-style: normal;
+  margin-left: 2px;
+  color: var(--ink);
+}
+@keyframes blink { 50% { opacity: 0; } }
 
 /* ═══════════════════════════════════════════════
    RESPONSIVE — tablet  (≤ 768px)
