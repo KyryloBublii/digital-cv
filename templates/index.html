@@ -208,8 +208,12 @@
     chipGroups[current].classList.add('active');
   }
 
+  /* Stop the animation loop if HTMX navigates away from the homepage */
+  document.body.addEventListener('htmx:beforeSwap', function () { window._heroDead = true; });
+
   // ── Cycle ─────────────────────────────────────────────────────
   function cycle() {
+    if (window._heroDead) return;
     deleteFrom(twLine2, 38, function () {
       setTimeout(function () {
         deleteFrom(twLine1, 38, function () {
