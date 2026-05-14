@@ -209,3 +209,4 @@ __marimo__/
 .profile_cache.json
 /.playwright-mcp/
 /CLAUDE.md
+certs/
