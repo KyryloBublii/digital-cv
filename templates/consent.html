@@ -1,0 +1,132 @@
+{% if not request.cookies.get('analytics_consent') %}
+<div id="consent-banner" role="dialog" aria-label="Cookie consent">
+
+  <style>
+    #consent-banner {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 900;
+      background: var(--surface);
+      border-top: 1px solid var(--ink-5);
+      box-shadow: 0 -4px 24px rgba(0,0,0,0.07);
+      padding: 18px var(--gap);
+    }
+    .cb-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .cb-text {
+      font-family: var(--fb);
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--ink-2);
+      line-height: 1.6;
+      flex: 1;
+      min-width: 200px;
+    }
+    .cb-text a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+    .cb-actions { display: flex; gap: 10px; flex-shrink: 0; align-items: center; }
+    .cb-nojs-note {
+      font-family: var(--fm);
+      font-size: 11px;
+      color: var(--ink-3);
+      text-align: center;
+      padding-top: 8px;
+      max-width: var(--max);
+      margin: 0 auto;
+    }
+    @media (max-width: 560px) {
+      .cb-inner { flex-direction: column; align-items: flex-start; }
+      .cb-actions { width: 100%; }
+      .cb-actions button, .cb-actions .btn-primary, .cb-actions .btn-ghost {
+        flex: 1;
+        justify-content: center;
+      }
+    }
+  </style>
+
+  <div class="cb-inner">
+    <p class="cb-text">
+      We use cookies to understand how visitors use this site.
+      You can accept or decline analytics tracking.
+      <a href="{{ url_for('privacy') }}">Privacy policy →</a>
+    </p>
+
+    {# JS-powered HTMX buttons — hidden via noscript style below when JS is off #}
+    <div class="cb-actions" id="cb-js-actions">
+      <button class="btn-primary"
+              hx-post="/set-consent"
+              hx-vals='{"consent": "true"}'
+              hx-swap="none"
+              hx-on::after-request="_consentAccept()">Accept</button>
+      <button class="btn-ghost"
+              hx-post="/set-consent"
+              hx-vals='{"consent": "false"}'
+              hx-swap="none"
+              hx-on::after-request="_consentDecline()">Decline</button>
+    </div>
+  </div>
+
+  {# No-JS fallback: hide the HTMX buttons and provide regular form submits #}
+  <noscript>
+    <style>#cb-js-actions { display: none; }</style>
+    <div class="cb-inner" style="padding-top:8px;">
+      <p class="cb-nojs-note">JavaScript is disabled — no analytics are loaded.</p>
+      <div class="cb-actions">
+        <form method="POST" action="/set-consent">
+          <input type="hidden" name="consent" value="true" />
+          <button type="submit" class="btn-primary">Accept &amp; dismiss</button>
+        </form>
+        <form method="POST" action="/set-consent">
+          <input type="hidden" name="consent" value="false" />
+          <button type="submit" class="btn-ghost">Decline &amp; dismiss</button>
+        </form>
+      </div>
+    </div>
+  </noscript>
+
+</div>
+
+<script>
+  (function () {
+    function _initGA() {
+      if (window._gaLoaded) return;
+      window._gaLoaded = true;
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      var s = document.createElement('script');
+      s.async = true;
+      s.onload = function () {
+        gtag('js', new Date());
+        gtag('config', 'G-P72GYCD944');
+        /* Track SPA navigations after consent is granted mid-session */
+        if (!window._gaHtmxHooked) {
+          window._gaHtmxHooked = true;
+          document.body.addEventListener('htmx:afterSwap', function () {
+            gtag('event', 'page_view', { page_path: window.location.pathname });
+          });
+        }
+      };
+      s.src = 'https://www.googletagmanager.com/gtag/js?id=G-P72GYCD944';
+      document.head.appendChild(s);
+    }
+
+    window._consentAccept = function () {
+      _initGA();
+      var el = document.getElementById('consent-banner');
+      if (el) el.remove();
+    };
+
+    window._consentDecline = function () {
+      var el = document.getElementById('consent-banner');
+      if (el) el.remove();
+    };
+  })();
+</script>
+
+{% endif %}

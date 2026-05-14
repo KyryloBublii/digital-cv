@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Work / Kyrylo Bublii{% endblock %}
+{% block description %}Side projects and open-source work by Kyrylo Bublii — web apps, APIs, ETL pipelines and data tools built with Python, Java and PostgreSQL.{% endblock %}
 
 {% block content %}
 
@@ -22,7 +23,8 @@
     <div class="projects-grid" id="projects-grid">
       {% for p in projects %}
       <div class="proj-card rv{% if p.featured %} featured{% endif %}{% if not loop.first %} d{{ loop.index0 if loop.index0 <= 4 else 4 }}{% endif %}"
-           data-tags="{{ p.tags | join(',') }}">
+           data-tags="{{ p.tags | join(',') }}"
+           {% if p.slug %}data-href="{{ url_for('project_detail', slug=p.slug) }}"{% endif %}>
         <div class="proj-screenshot">
           {% if p.screenshot %}
             <img src="{{ p.screenshot }}" alt="{{ p.title }} screenshot" loading="lazy" />
@@ -45,7 +47,7 @@
             <div class="proj-links">
               {% if p.live_url %}<a href="{{ p.live_url }}" target="_blank" class="proj-link primary">Live Demo ↗</a>{% endif %}
               {% if p.github_url %}<a href="{{ p.github_url }}" target="_blank" class="proj-link">GitHub ↗</a>{% endif %}
-              {% if p.slug %}<a href="{{ url_for('project_detail', slug=p.slug) }}" class="proj-link">Details →</a>{% endif %}
+
             </div>
             <span class="proj-year">{{ p.year }}</span>
           </div>
@@ -55,6 +57,15 @@
     </div>
   </div>
 </section>
+
+<script>
+  document.getElementById('projects-grid').addEventListener('click', function (e) {
+    const card = e.target.closest('.proj-card[data-href]');
+    if (!card) return;
+    if (e.target.closest('a')) return;
+    window.location.href = card.dataset.href;
+  });
+</script>
 
 <script>
   (function () {

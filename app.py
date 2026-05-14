@@ -1,16 +1,22 @@
 import logging
 import os
+from datetime import date
 
 import resend
 import requests
 from dotenv import load_dotenv
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, Response, make_response, redirect, url_for
 from data.profile import get_profile
+from seo_helpers import inject_seo
 
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-change-in-production")
+_secret_key = os.environ.get("SECRET_KEY")
+if not _secret_key:
+    raise RuntimeError("SECRET_KEY environment variable is not set")
+app.secret_key = _secret_key
+app.context_processor(inject_seo)
 
 
 def _get_projects() -> list[dict]:
@@ -118,6 +124,74 @@ def contact():
         error=error,
         turnstile_site_key=os.environ.get("TURNSTILE_SITE_KEY", ""),
     )
+
+
+@app.route("/set-consent", methods=["POST"])
+def set_consent():
+    consent = request.form.get("consent", "false")
+    if consent not in ("true", "false"):
+        consent = "false"
+
+    is_htmx = bool(request.headers.get("HX-Request"))
+    if is_htmx:
+        resp = make_response("", 204)
+    else:
+        # No-JS fallback: always redirect to a safe internal URL
+        resp = make_response(redirect(url_for("index"), 302))
+
+    resp.set_cookie(
+        "analytics_consent",
+        consent,
+        max_age=365 * 24 * 60 * 60,
+        secure=True,
+        httponly=False,   # JS must read it to suppress the banner on SPA navigations
+        samesite="Lax",
+    )
+    return resp
+
+
+@app.route("/privacy")
+def privacy():
+    return render_template("privacy.html", active_page="privacy")
+
+
+@app.route("/robots.txt")
+def robots_txt():
+    content = """\
+# As a condition of accessing this website, you agree to abide by the following
+# content signals:
+
+# (a) If a content-signal = yes, you may collect content for the corresponding use.
+# (b) If a content-signal = no, you may not collect content for the corresponding use.
+# (c) If the website operator does not include a content signal for a corresponding
+#     use, the website operator neither grants nor restricts permission via content
+#     signal with respect to the corresponding use.
+
+# search:   building a search index and providing search results
+# ai-input: inputting content into one or more AI models
+# ai-train: training or fine-tuning AI models
+
+# ANY RESTRICTIONS EXPRESSED VIA CONTENT SIGNALS ARE EXPRESS RESERVATIONS OF
+# RIGHTS UNDER ARTICLE 4 OF THE EUROPEAN UNION DIRECTIVE 2019/790 ON COPYRIGHT
+# AND RELATED RIGHTS IN THE DIGITAL SINGLE MARKET.
+
+search: yes
+ai-input: no
+ai-train: no
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Sitemap: https://kyrylobublii.com/sitemap.xml
+"""
+    return Response(content, mimetype="text/plain")
+
+
+@app.route("/sitemap.xml")
+def sitemap():
+    projects = _get_projects()
+    xml = render_template("sitemap.xml", projects=projects, today=date.today().isoformat())
+    return Response(xml, mimetype="application/xml")
 
 
 @app.errorhandler(404)

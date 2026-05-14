@@ -1,5 +1,24 @@
 {% extends "base.html" %}
 {% block title %}Kyrylo Bublii{% endblock %}
+{% block description %}Backend developer and data engineer specialising in Python, Java and PostgreSQL. I build APIs, internal tools and ETL pipelines. Available for freelance projects.{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Kyrylo Bublii",
+  "url": "https://kyrylobublii.com",
+  "jobTitle": "Backend Developer",
+  "description": "Backend developer and data engineer specialising in Python, Java and PostgreSQL.",
+  "sameAs": [
+    "https://github.com/KyryloBublii",
+    "https://www.linkedin.com/in/kyrylobublii/"
+  ],
+  "knowsAbout": ["Python", "Java", "PostgreSQL", "Flask", "Spring Boot", "ETL", "Docker", "REST APIs"]
+}
+</script>
+{% endblock %}
 
 {% block content %}
 

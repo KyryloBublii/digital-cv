@@ -1,5 +1,36 @@
 {% extends "base.html" %}
 {% block title %}About / Kyrylo Bublii{% endblock %}
+{% block description %}About Kyrylo Bublii — backend developer and data engineer based in Siauliai, Lithuania. BSc Software Engineering. Experience in Python, Java, PostgreSQL, Docker and REST APIs.{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Kyrylo Bublii",
+  "url": "https://kyrylobublii.com",
+  "jobTitle": "Backend Developer",
+  "worksFor": {
+    "@type": "Organization",
+    "name": "ELGA"
+  },
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Siauliai",
+    "addressCountry": "LT"
+  },
+  "alumniOf": {
+    "@type": "EducationalOrganization",
+    "name": "BSc Software Engineering"
+  },
+  "sameAs": [
+    "https://github.com/KyryloBublii",
+    "https://www.linkedin.com/in/kyrylobublii/"
+  ],
+  "knowsAbout": ["Python", "Java", "PostgreSQL", "Flask", "Spring Boot", "ETL", "Docker", "REST APIs", "FastAPI", "Django"]
+}
+</script>
+{% endblock %}
 
 {% block content %}
 
@@ -15,7 +46,8 @@
     <div class="about-grid">
       <div class="about-photo-box rv">
         <div class="about-photo">
-          <img src="{{ url_for('static', filename='images/profile.jpg') }}" alt="Kyrylo Bublii" />
+          {% from "macros.html" import picture %}
+          {{ picture('images/profile', 'Kyrylo Bublii — backend developer', 400, 400) }}
         </div>
         <div class="avail-chip">Available for new projects</div>
       </div>

@@ -2,6 +2,16 @@ import logging
 import time
 
 import markdown as md_lib
+import nh3
+
+_ALLOWED_TAGS = {
+    "h1", "h2", "h3", "h4", "h5", "h6",
+    "p", "br", "hr",
+    "ul", "ol", "li",
+    "strong", "em", "code", "pre", "blockquote",
+    "a", "img",
+    "table", "thead", "tbody", "tr", "th", "td",
+}
 
 from data.github_client import (
     GITHUB_USERNAME,
@@ -62,7 +72,10 @@ def _build_projects() -> list[dict]:
             "status":      _to_status(fields.get("status", "live")),
             "tags":        fields.get("tags") or [],
             "description": extract_description(body),
-            "readme_html": md_lib.markdown(body, extensions=["tables", "fenced_code"]),
+            "readme_html": nh3.clean(
+                md_lib.markdown(body, extensions=["tables", "fenced_code"]),
+                tags=_ALLOWED_TAGS,
+            ),
             "screenshot":  screenshot,
             "photos":      photos,
             "github_url":  repo.get("html_url", ""),

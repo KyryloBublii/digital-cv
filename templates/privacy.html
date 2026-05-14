@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block title %}Privacy Policy / Kyrylo Bublii{% endblock %}
+{% block description %}Privacy policy for kyrylobublii.com — what data is collected, why, and how to withdraw consent or request deletion.{% endblock %}
+
+{% block content %}
+
+<style>
+  .priv-section { padding: 80px 0 20px; }
+  .priv-section + .priv-section { padding-top: 40px; }
+  .priv-last { padding-bottom: 80px; }
+  .priv-h2 {
+    font-family: var(--fd);
+    font-size: clamp(20px, 3vw, 28px);
+    font-weight: 400;
+    color: var(--ink);
+    letter-spacing: -0.015em;
+    margin-bottom: 16px;
+  }
+  .priv-body {
+    max-width: 680px;
+    font-size: 15px;
+    font-weight: 300;
+    color: var(--ink-2);
+    line-height: 1.85;
+  }
+  .priv-body p { margin-bottom: 1em; }
+  .priv-body ul { padding-left: 22px; margin-bottom: 1em; }
+  .priv-body li { margin-bottom: 0.4em; }
+  .priv-body a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+  .priv-body strong { font-weight: 500; color: var(--ink); }
+  .priv-updated {
+    font-family: var(--fm);
+    font-size: 11px;
+    color: var(--ink-3);
+    letter-spacing: 0.04em;
+    margin-bottom: 40px;
+  }
+</style>
+
+<section class="s" id="privacy-top">
+  <div class="wrap">
+    <div class="s-head rv">
+      <div>
+        <div class="s-label">Legal</div>
+        <h1 class="s-title">Privacy <em>Policy</em></h1>
+      </div>
+    </div>
+
+    <p class="priv-updated">Last updated: May 2026 &nbsp;·&nbsp; Domain: kyrylobublii.com</p>
+
+    <div class="priv-section rv">
+      <h2 class="priv-h2">What data is collected</h2>
+      <div class="priv-body">
+        <p>
+          This site uses <strong>Google Analytics 4 (GA4)</strong> to collect anonymised usage data,
+          but <em>only if you have given consent</em> via the cookie banner.
+          If you declined or have not yet responded, no tracking scripts are loaded.
+        </p>
+        <p>When analytics are active, GA4 may collect:</p>
+        <ul>
+          <li>Pages visited and time spent on each page</li>
+          <li>Referring URL (where you came from)</li>
+          <li>Browser type, operating system, and screen resolution</li>
+          <li>Approximate country/region (derived from IP address; the full IP is not stored by Google)</li>
+        </ul>
+        <p>
+          No names, email addresses, or other personally identifiable information are collected
+          through analytics. The contact form sends your message directly by email and that data
+          is not retained beyond the email inbox.
+        </p>
+      </div>
+    </div>
+
+    <div class="priv-section rv d1">
+      <h2 class="priv-h2">Why it is collected</h2>
+      <div class="priv-body">
+        <p>
+          Analytics data is used solely to understand how visitors interact with this portfolio —
+          for example, which projects attract the most interest. It is never sold or shared with
+          third parties for advertising.
+        </p>
+      </div>
+    </div>
+
+    <div class="priv-section rv d1">
+      <h2 class="priv-h2">Cookies set by this site</h2>
+      <div class="priv-body">
+        <ul>
+          <li>
+            <strong>analytics_consent</strong> — stores your accept/decline choice.
+            Expires after 365 days. Set by this site directly.
+          </li>
+          <li>
+            <strong>_ga, _ga_*</strong> — Google Analytics measurement cookies.
+            Only set after you accept. Expire after 2 years.
+            See <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's privacy policy</a>.
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="priv-section rv d1">
+      <h2 class="priv-h2">How to withdraw consent</h2>
+      <div class="priv-body">
+        <p>You can withdraw your consent at any time in any of these ways:</p>
+        <ul>
+          <li>
+            <strong>Clear cookies</strong> — delete the <code>analytics_consent</code> cookie in your browser's
+            developer tools or settings. The banner will reappear on your next visit.
+          </li>
+          <li>
+            <strong>Withdraw directly</strong> —
+            <form method="POST" action="/set-consent" style="display:inline;">
+              <input type="hidden" name="consent" value="false" />
+              <button type="submit" style="
+                font-family:var(--fm);font-size:12px;font-weight:400;letter-spacing:0.03em;
+                color:var(--accent);background:none;border:none;cursor:pointer;
+                text-decoration:underline;text-underline-offset:3px;padding:0;
+              ">Click here to decline analytics</button>
+            </form>
+            — takes effect immediately without reloading.
+          </li>
+          <li>
+            <strong>Opt out globally</strong> — install the
+            <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener">Google Analytics Opt-out Browser Add-on</a>.
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="priv-section rv d1">
+      <h2 class="priv-h2">Data processor</h2>
+      <div class="priv-body">
+        <p>
+          Analytics data is processed by <strong>Google LLC</strong> under Google's data processing terms.
+          Data may be transferred to and stored on servers in the United States. Google is certified under
+          the EU–US Data Privacy Framework.
+        </p>
+      </div>
+    </div>
+
+    <div class="priv-section priv-last rv d1">
+      <h2 class="priv-h2">Contact</h2>
+      <div class="priv-body">
+        <p>
+          For questions about this privacy policy or to request deletion of any data,
+          contact me at <a href="mailto:kirill.bubliy@gmail.com">kirill.bubliy@gmail.com</a>
+          or use the <a href="{{ url_for('contact') }}">contact form</a>.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}

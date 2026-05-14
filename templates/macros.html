@@ -1,0 +1,24 @@
+{% macro picture(base_path, alt, width="", height="", cls="", loading="lazy") %}
+{#
+  Renders a <picture> element with a WebP source and a fallback <img>.
+
+  base_path — static file path without extension, e.g. "images/profile"
+  alt       — alt text for the image
+  width     — optional HTML width attribute
+  height    — optional HTML height attribute
+
+  Requires: a .webp and a .jpg (or .png) file at the given path under /static/.
+  Generate the WebP file with image_utils.convert_to_webp().
+#}
+<picture>
+  <source srcset="{{ url_for('static', filename=base_path + '.webp') }}" type="image/webp" />
+  <img
+    src="{{ url_for('static', filename=base_path + '.jpg') }}"
+    alt="{{ alt }}"
+    {% if width %}width="{{ width }}"{% endif %}
+    {% if height %}height="{{ height }}"{% endif %}
+    {% if cls %}class="{{ cls }}"{% endif %}
+    loading="{{ loading }}"
+  />
+</picture>
+{% endmacro %}

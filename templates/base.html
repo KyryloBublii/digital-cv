@@ -4,6 +4,39 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}Kyrylo Bublii{% endblock %}</title>
+  <meta name="description" content="{% block description %}Kyrylo Bublii — backend developer specialising in Python, Java and PostgreSQL. Available for freelance projects.{% endblock %}" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="{{ canonical }}" />
+
+  <!-- Open Graph -->
+  <meta property="og:title"       content="{{ self.title() }}" />
+  <meta property="og:description" content="{{ self.description() }}" />
+  <meta property="og:url"         content="{{ canonical }}" />
+  <meta property="og:type"        content="{% block og_type %}website{% endblock %}" />
+  <meta property="og:image"       content="{% block og_image %}{{ BASE_URL }}/static/images/og-default.jpg{% endblock %}" />
+
+  <!-- Google Analytics GA4 — only loaded after explicit cookie consent (GDPR) -->
+  {% if request.cookies.get('analytics_consent') == 'true' %}
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-P72GYCD944"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-P72GYCD944');
+    window._gaLoaded = true;
+    /* Track SPA navigations via HTMX boost */
+    if (!window._gaHtmxHooked) {
+      window._gaHtmxHooked = true;
+      document.addEventListener('htmx:afterSwap', function () {
+        gtag('event', 'page_view', { page_path: window.location.pathname });
+      });
+    }
+  </script>
+  {% endif %}
+  <noscript><!-- GA4 not loaded: JavaScript is required --></noscript>
+
+  <!-- JSON-LD structured data (page-specific) -->
+  {% block structured_data %}{% endblock %}
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -16,7 +49,10 @@
   <!-- Custom CSS — loaded last to override CDN resets -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}" />
 
-  <!-- HTMX 2 -->
+  <!-- HTMX 2
+       hx-boost on <body> swaps <main id="content"> for SPA-like navigation.
+       All page content is server-rendered — crawlers receive full HTML on direct URL requests.
+       No SEO-critical content depends on HTMX swaps. -->
   <script src="https://unpkg.com/htmx.org@2/dist/htmx.min.js"></script>
 </head>
 <body hx-boost="true">
@@ -75,6 +111,9 @@
     document.querySelectorAll('.rv:not(.on)').forEach(el => window._revealIO.observe(el));
   });
 </script>
+
+<!-- Cookie consent banner — shown only when no choice has been stored -->
+{% include "consent.html" %}
 
 </body>
 </html>

@@ -453,12 +453,14 @@ nav {
   display: grid;
   grid-template-columns: 1.1fr 1fr;
   align-items: stretch;
-  transition: transform 0.3s var(--spring), box-shadow 0.3s var(--ease), border-color 0.3s;
+  transition: transform 0.3s var(--spring), border-color 0.3s;
+  cursor: default;
+}
+.proj-card[data-href] {
   cursor: pointer;
 }
 .proj-card:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
   border-color: var(--ink-4);
 }
 .proj-screenshot {

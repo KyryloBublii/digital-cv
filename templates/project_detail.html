@@ -1,5 +1,28 @@
 {% extends "base.html" %}
 {% block title %}{{ project.title }} / Kyrylo Bublii{% endblock %}
+{% block description %}{{ project.description }}{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block og_image %}{{ project.screenshot or (BASE_URL + '/static/images/og-default.jpg') }}{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": {{ project.title | tojson }},
+  "description": {{ project.description | tojson }},
+  {% if project.live_url %}"url": {{ project.live_url | tojson }},{% endif %}
+  "applicationCategory": "WebApplication",
+  "dateCreated": {{ project.year | tojson }},
+  {% if project.tags %}"keywords": {{ project.tags | join(', ') | tojson }},{% endif %}
+  "author": {
+    "@type": "Person",
+    "name": "Kyrylo Bublii",
+    "url": "https://kyrylobublii.com"
+  }
+}
+</script>
+{% endblock %}
 
 {% block content %}
 
@@ -48,6 +71,13 @@
     align-items: center;
   }
   .pd-links { display: flex; gap: 10px; flex-wrap: wrap; }
+  .pd-hero-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 32px; }
+  .pd-hero-left { flex: 1; min-width: 0; }
+  .pd-hero-right { flex-shrink: 0; display: flex; align-items: center; padding-top: 56px; }
+  @media (max-width: 600px) {
+    .pd-hero-row { flex-direction: column; }
+    .pd-hero-right { padding-top: 0; }
+  }
 
   /* Gallery */
   .pd-gallery { margin-top: 48px; }
@@ -205,35 +235,39 @@
   <div class="wrap">
     <a href="{{ url_for('projects') }}" class="pd-back rv">Back to Work</a>
 
-    <div class="rv d1">
-      <div class="s-label">{{ project.year }}</div>
-      <h1 class="pd-title">{{ project.title }}</h1>
-      <div class="pd-meta">
-        <div class="proj-tags" style="margin:0;">
-          {% for tag in project.tags %}<span class="proj-tag">{{ tag }}</span>{% endfor %}
+    <div class="rv d1 pd-hero-row">
+      <div class="pd-hero-left">
+        <div class="s-label">{{ project.year }}</div>
+        <h1 class="pd-title">{{ project.title }}</h1>
+        <div class="pd-meta">
+          <div class="proj-tags" style="margin:0;">
+            {% for tag in project.tags %}<span class="proj-tag">{{ tag }}</span>{% endfor %}
+          </div>
         </div>
-      </div>
-      <div class="pd-links">
         {% if project.live_url %}
-          <a href="{{ project.live_url }}" target="_blank" class="btn-primary">Live Demo ↗</a>
-        {% endif %}
-        {% if project.github_url %}
-          <a href="{{ project.github_url }}" target="_blank" class="btn-ghost">GitHub ↗</a>
+          <div class="pd-links">
+            <a href="{{ project.live_url }}" target="_blank" class="btn-primary">Live Demo ↗</a>
+          </div>
         {% endif %}
       </div>
+      {% if project.github_url %}
+      <div class="pd-hero-right">
+        <a href="{{ project.github_url }}" target="_blank" class="btn-ghost">GitHub ↗</a>
+      </div>
+      {% endif %}
     </div>
 
     {# ── GALLERY ─── #}
     {% if project.photos %}
     <div class="pd-gallery rv d2">
       <div class="pd-photo-main">
-        <img id="pd-main-img" src="{{ project.photos[0] }}" alt="{{ project.title }}" loading="lazy" />
+        <img id="pd-main-img" src="{{ project.photos[0] }}" alt="{{ project.title }} — screenshot 1" width="1280" height="560" loading="lazy" />
       </div>
       {% if project.photos | length > 1 %}
       <div class="pd-gallery-strip">
         {% for photo in project.photos %}
         <div class="pd-strip-thumb{% if loop.first %} active{% endif %}" data-src="{{ photo }}">
-          <img src="{{ photo }}" alt="{{ project.title }} {{ loop.index }}" loading="lazy" />
+          <img src="{{ photo }}" alt="{{ project.title }} — screenshot {{ loop.index }}" width="88" height="64" loading="lazy" />
         </div>
         {% endfor %}
       </div>
