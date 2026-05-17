@@ -32,12 +32,12 @@ export const roles = [
     },
   },
   {
-    title: ["Java", "Developer"],
-    color: "#a32d2d",
-    stack: {
-      primary:   ["Java", "Spring Boot"],
-      secondary: ["Maven", "JUnit", "Hibernate", "REST APIs"],
-    },
+    // title: ["Java", "Developer"],
+    // color: "#a32d2d",
+    // stack: {
+    //   primary:   ["Java", "Spring Boot"],
+    //   secondary: ["Maven", "JUnit", "Hibernate", "REST APIs"],
+    // },
   },
 ]
 
