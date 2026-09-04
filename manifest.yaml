@@ -12,7 +12,8 @@
 #      ghcr.io/kyrylobublii/digital-cv:<git-sha> and then runs `kubectl set image`
 #      over SSH, so after the first deploy the live tag is a SHA, not the value
 #      written below. If the GHCR package is private, the namespace also needs a
-#      pull secret and an `imagePullSecrets:` entry in the pod spec.
+#      pull secret named "ghcr" — the imagePullSecrets entry is already in the
+#      pod spec below, it just needs that Secret to exist in the namespace.
 #      For local/minikube testing instead:
 #           eval $(minikube -p minikube docker-env)
 #           docker build -t digital-cv:latest .
@@ -59,6 +60,11 @@ spec:
       labels:
         app: digital-cv
     spec:
+      # Credentials for pulling from GHCR. Harmless while the package is public
+      # — the kubelet only uses them if an anonymous pull is refused — and
+      # required the moment you make it private. Create it once with:
+      imagePullSecrets:
+      - name: ghcr
       containers:
       - name: digital-cv
         # Bootstrap value only: .github/workflows/deploy-k8s.yml replaces this
