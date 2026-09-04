@@ -722,56 +722,89 @@ nav {
 /* ═══════════════════════════════════════════════
    CERTIFICATIONS
 ═══════════════════════════════════════════════ */
-.certs-list { display: flex; flex-direction: column; gap: 14px; }
+/* Credentials are records you can verify, so each row is one link: the name,
+   who issued it, when, and the way to check it. Date sits with the issuer on
+   the metadata line rather than in its own rail — "August 2026" never fit the
+   rail, and pairing it with the issuer is how a credential is actually read. */
+.certs-list { display: flex; flex-direction: column; gap: 8px; }
 .cert-item {
   display: flex;
-  gap: 32px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
   background: var(--surface);
   border: 1px solid var(--ink-5);
   border-radius: var(--radius);
-  padding: 22px 24px;
-  align-items: flex-start;
+  padding: 16px 22px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s var(--ease), background 0.2s var(--ease), box-shadow 0.2s var(--ease);
 }
-.cert-meta {
-  flex-shrink: 0;
-  width: 110px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+a.cert-item:hover {
+  background: var(--accent-bg);
+  border-color: var(--accent);
+  box-shadow: var(--shadow-sm);
 }
-.cert-date {
-  font-family: var(--fm);
-  font-size: 10px;
-  font-weight: 300;
-  color: var(--ink-3);
-  letter-spacing: 0.04em;
+a.cert-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
-.cert-body { flex: 1; }
+.cert-body { min-width: 0; }
 .cert-name {
   font-family: var(--fd);
   font-size: 17px;
+  line-height: 1.35;
   color: var(--ink);
-  margin-bottom: 6px;
 }
+.cert-line {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 3px;
+}
+.cert-issuer {
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--ink-3);
+  line-height: 1.5;
+}
+.cert-sep { color: var(--ink-4); font-size: 11px; }
+.cert-date {
+  font-family: var(--fm);
+  font-size: 10.5px;
+  font-weight: 300;
+  color: var(--ink-3);
+  letter-spacing: 0.05em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+/* Quiet until the row is hovered — five blue links stacked down the page
+   competed with the section heading for attention. */
+.cert-go {
+  flex-shrink: 0;
+  font-family: var(--fm);
+  font-size: 10.5px;
+  color: var(--ink-3);
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  transition: color 0.2s var(--ease);
+}
+a.cert-item:hover .cert-go,
+a.cert-item:hover .cert-date,
+a.cert-item:focus-visible .cert-go { color: var(--accent); }
 .cert-desc {
   font-size: 13.5px;
   font-weight: 300;
   color: var(--ink-2);
   line-height: 1.8;
-  margin-bottom: 10px;
+  margin-top: 6px;
 }
-.cert-link {
-  font-family: var(--fm);
-  font-size: 11px;
-  font-weight: 400;
-  color: var(--accent);
-  letter-spacing: 0.04em;
-  transition: opacity 0.15s;
+@media (prefers-reduced-motion: reduce) {
+  .cert-item, .cert-go { transition: none; }
 }
-.cert-link:hover { opacity: 0.7; }
 @media (max-width: 540px) {
-  .cert-item { flex-direction: column; gap: 10px; }
-  .cert-meta { width: auto; flex-direction: row; gap: 12px; align-items: center; }
+  .cert-item { flex-direction: column; align-items: flex-start; gap: 10px; padding: 16px 18px; }
 }
 
 /* ═══════════════════════════════════════════════

@@ -19,6 +19,21 @@ app.secret_key = _secret_key
 app.context_processor(inject_seo)
 
 
+@app.context_processor
+def inject_asset_version():
+    """Cache-busting token for /static/ URLs.
+
+    nginx.conf serves static assets as `public, immutable` for a year, so an
+    edited CSS file keeps its old URL and browsers never re-fetch it. Keying
+    the URL on the file's mtime gives each edit a fresh URL.
+    """
+    try:
+        stamp = int(os.path.getmtime(os.path.join(app.static_folder, "css", "custom.css")))
+    except OSError:
+        stamp = 0
+    return {"asset_v": str(stamp)}
+
+
 def _get_projects() -> list[dict]:
     try:
         from data.github_projects import get_projects

@@ -1,12 +1,19 @@
 import json
 import logging
 import os
+import re
 import time
+from datetime import datetime
 from pathlib import Path
 
 import requests
 
 CACHE_TTL = 86400  # 24 hours
+
+# Credly badge URLs carry the assertion UUID, and Credly serves the issue date
+# for it as public Open Badges JSON — no auth, no API key.
+_CREDLY_ID  = re.compile(r"credly\.com/badges/([0-9a-fA-F-]{36})")
+_CREDLY_API = "https://www.credly.com/api/v1/obi/v2/badge_assertions/{}"
 
 _REPO       = os.environ.get("GITHUB_PORTFOLIO_DATA_REPO", "KyryloBublii/portfolio-data")
 _FILE       = "profile.json"
@@ -44,6 +51,39 @@ def _write_cache(data: dict) -> None:
         logging.warning("Could not write profile cache: %s", exc)
 
 
+def _credly_issue_date(url: str) -> str | None:
+    """Return a Credly badge's issue date as e.g. "August 2026", or None."""
+    match = _CREDLY_ID.search(url or "")
+    if not match:
+        return None
+    try:
+        r = requests.get(_CREDLY_API.format(match.group(1)), timeout=5)
+        r.raise_for_status()
+        issued = r.json().get("issuedOn")
+        if not issued:
+            return None
+        return datetime.fromisoformat(issued.replace("Z", "+00:00")).strftime("%B %Y")
+    except Exception as exc:
+        logging.warning("Credly lookup failed for %s: %s", url, exc)
+        return None
+
+
+def _fill_credly_dates(data: dict) -> None:
+    """Fill in missing certification dates from Credly, in place.
+
+    Only runs on a cache miss (once per CACHE_TTL), only for entries that have a
+    Credly URL and no date of their own — a date written in profile.json always
+    wins. A lookup that fails leaves the date empty and the page renders "—".
+    """
+    for cert in data.get("certifications") or []:
+        if cert.get("date") or "credly.com" not in (cert.get("url") or ""):
+            continue
+        date = _credly_issue_date(cert["url"])
+        if date:
+            cert["date"] = date
+            logging.info("Filled %s date from Credly: %s", cert.get("name"), date)
+
+
 def get_profile() -> dict:
     """Return profile data, refreshing from GitHub at most once per CACHE_TTL.
     Uses a file-based cache — persists across restarts, shared across workers."""
@@ -52,6 +92,7 @@ def get_profile() -> dict:
         return cached
     try:
         data = _fetch_remote()
+        _fill_credly_dates(data)
         _write_cache(data)
         return data
     except Exception as exc:
