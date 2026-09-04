@@ -1,8 +1,10 @@
 name: Deploy
 
+# Compose deploy — superseded by deploy-k8s.yml. Kept as a manual fallback:
+# it binds :80/:443, which the cluster's Traefik now owns, so it must not fire
+# on push. Run it only after `sudo systemctl stop k3s`.
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
 
 jobs:
   deploy:

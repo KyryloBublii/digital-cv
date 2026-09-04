@@ -1,0 +1,93 @@
+# Kubernetes deploy: build once in CI, push to GHCR, roll the cluster out over SSH.
+#
+# Deliberately manual (workflow_dispatch) so it does not race the existing
+# compose deploy in deploy.yml, which still runs on every push to main. When you
+# cut over: uncomment the push trigger here and delete deploy.yml.
+#
+# Why SSH instead of talking to the cluster directly: the kubectl call runs on
+# the server that already hosts the cluster, so the Kubernetes API never needs a
+# public endpoint and no kubeconfig has to live in GitHub secrets. It reuses the
+# SERVER_HOST / SERVER_USER / SSH_PRIVATE_KEY secrets deploy.yml already uses.
+#
+# The server keeps a checkout at ~/digital-cv (as deploy.yml already assumes):
+# CI pulls it, substitutes the freshly built tag into manifest.yaml, and applies.
+# So manifest.yaml in git is the source of truth for everything except the image
+# tag, which is always the commit being deployed. First run creates the resources;
+# later runs update them.
+
+name: Deploy (Kubernetes)
+
+on:
+  workflow_dispatch:
+  # push:
+  #   branches: [main]
+
+env:
+  # Hardcoded lowercase on purpose: GHCR rejects uppercase repository names, and
+  # ${{ github.repository }} would interpolate to "KyryloBublii/digital-cv".
+  IMAGE: ghcr.io/kyrylobublii/digital-cv
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write        # required to push to GHCR with GITHUB_TOKEN
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          # Immutable SHA tag is what the rollout keys on — :latest would leave
+          # the Deployment's image string unchanged and nothing would restart.
+          # The main tag is for humans reading the package list; never deploy it.
+          tags: |
+            ${{ env.IMAGE }}:${{ github.sha }}
+            ${{ env.IMAGE }}:main
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Roll out on the cluster
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          # k3s writes its kubeconfig to a root-owned path; adjust if the SSH
+          # user has its own ~/.kube/config instead.
+          envs: IMAGE_REF
+          script: |
+            set -euo pipefail
+            export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+            cd ~/digital-cv
+            git pull --ff-only origin main
+
+            # Apply the manifest with the freshly built tag substituted in, so
+            # git stays the source of truth and one apply produces one rollout.
+            # (`kubectl apply` then `kubectl set image` would roll twice: once to
+            # the bootstrap :main tag, then again to the SHA.)
+            sed "s|image: ghcr.io/kyrylobublii/digital-cv:main|image: $IMAGE_REF|" \
+              manifest.yaml | kubectl apply -f -
+
+            # Fail the job (and roll back) if the new pods never become Ready.
+            if ! kubectl rollout status deployment/digital-cv --timeout=180s; then
+              echo "::error::rollout failed — reverting to the previous revision"
+              kubectl rollout undo deployment/digital-cv
+              kubectl rollout status deployment/digital-cv --timeout=180s || true
+              exit 1
+            fi
+
+            kubectl get deployment digital-cv \
+              -o jsonpath='{.spec.template.spec.containers[0].image}{"\n"}'
+        env:
+          IMAGE_REF: ${{ env.IMAGE }}:${{ github.sha }}
