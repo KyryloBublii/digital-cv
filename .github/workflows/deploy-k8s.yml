@@ -18,9 +18,9 @@
 name: Deploy (Kubernetes)
 
 on:
-  workflow_dispatch:
-  # push:
-  #   branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:      # also deployable by hand, without a new commit
 
 env:
   # Hardcoded lowercase on purpose: GHCR rejects uppercase repository names, and
@@ -72,7 +72,10 @@ jobs:
             set -euo pipefail
             export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
             cd ~/digital-cv
-            git pull --ff-only origin main
+            # fetch+reset rather than pull: a CI checkout should mirror the
+            # remote exactly, and --ff-only breaks after any history rewrite.
+            git fetch origin main
+            git reset --hard origin/main
 
             # Apply the manifest with the freshly built tag substituted in, so
             # git stays the source of truth and one apply produces one rollout.
