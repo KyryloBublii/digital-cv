@@ -22,11 +22,3 @@ PROJECTS = [
         "github_url":  "https://github.com/KyryloBublii/route-weather",
     },
 ]
-
-SKILLS = {
-    "Languages":  ["Java", "Python", "SQL", "JavaScript"],
-    "Frameworks": ["Spring Framework", "Hibernate", "Mockito", "JUnit", "Flyway", "Swagger", "Flask", "Django", "React"],
-    "Databases":  ["MySQL", "Microsoft SQL Server", "PostgreSQL", "MongoDB", "Supabase"],
-    "Tools":      ["Git", "GitHub", "Maven", "Gradle", "Docker", "CI/CD"],
-    "Other":      ["HTML", "CSS", "Flask", "Django", "Bash", "Linux", "Windows", "React", "Agile/Scrum"],
-}

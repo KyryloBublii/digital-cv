@@ -19,6 +19,41 @@ app.secret_key = _secret_key
 app.context_processor(inject_seo)
 
 
+def _static_exists(filename: str) -> bool:
+    """True when a file exists under static/.
+
+    Used by the picture() macro: a <source> pointing at a missing file is NOT
+    skipped by the browser — it wins the type match, 404s, and the <img>
+    fallback never runs, leaving a broken image.
+    """
+    return os.path.isfile(os.path.join(app.static_folder, filename))
+
+
+app.jinja_env.globals["static_exists"] = _static_exists
+
+
+def _to_bullets(value):
+    """Return a description as a list of bullet strings, or None for prose.
+
+    Accepts either a JSON array in profile.json, or a plain string whose lines
+    start with "-", "–" or "•" — so a list pasted straight from a CV renders as
+    a real <ul> instead of one run-on paragraph.
+    """
+    if isinstance(value, (list, tuple)):
+        items = [str(v).strip().lstrip("-–•").strip() for v in value]
+    elif isinstance(value, str):
+        lines = [line.strip() for line in value.splitlines() if line.strip()]
+        if not lines or not all(line.startswith(("-", "–", "•")) for line in lines):
+            return None
+        items = [line.lstrip("-–•").strip() for line in lines]
+    else:
+        return None
+    return [item for item in items if item] or None
+
+
+app.jinja_env.filters["bullets"] = _to_bullets
+
+
 @app.context_processor
 def inject_asset_version():
     """Cache-busting token for /static/ URLs.

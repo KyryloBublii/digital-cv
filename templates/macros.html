@@ -7,11 +7,12 @@
   width     — optional HTML width attribute
   height    — optional HTML height attribute
 
-  Requires: a .webp and a .jpg (or .png) file at the given path under /static/.
-  Generate the WebP file with image_utils.convert_to_webp().
+  Requires a .jpg at the given path under /static/. A .webp beside it is used
+  when present and skipped when not — generate one with
+  image_utils.convert_to_webp() and it is picked up automatically.
 #}
 <picture>
-  <source srcset="{{ url_for('static', filename=base_path + '.webp') }}" type="image/webp" />
+  {% if static_exists(base_path + '.webp') %}<source srcset="{{ url_for('static', filename=base_path + '.webp') }}" type="image/webp" />{% endif %}
   <img
     src="{{ url_for('static', filename=base_path + '.jpg') }}"
     alt="{{ alt }}"

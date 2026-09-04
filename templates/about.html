@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Kyrylo Bublii · About Me{% endblock %}
-{% block description %}About Kyrylo Bublii — backend developer and data engineer based in Siauliai, Lithuania. BSc Software Engineering. Experience in Python, Java, PostgreSQL, Docker and REST APIs.{% endblock %}
+{% block description %}About Kyrylo Bublii — DevOps engineer and Python developer based in Siauliai, Lithuania. BSc Software Engineering. Docker, Kubernetes, CI/CD, Linux, Flask and PostgreSQL.{% endblock %}
 
 {% block structured_data %}
 <script type="application/ld+json">
@@ -9,7 +9,7 @@
   "@type": "Person",
   "name": "Kyrylo Bublii",
   "url": "https://kyrylobublii.com",
-  "jobTitle": "Backend Developer",
+  "jobTitle": "DevOps Engineer & Python Developer",
   "worksFor": {
     "@type": "Organization",
     "name": "ELGA"
@@ -29,10 +29,22 @@
     "https://www.fiverr.com/stalkerweb",
     "https://www.upwork.com/freelancers/~01c6081b138f1030a9"
   ],
-  "knowsAbout": ["Python", "Java", "PostgreSQL", "Flask", "Spring Boot", "ETL", "Docker", "REST APIs", "FastAPI", "Django"]
+  "knowsAbout": ["Docker", "Kubernetes", "CI/CD", "GitHub Actions", "Linux", "nginx", "Python", "Flask", "FastAPI", "Django", "PostgreSQL", "REST APIs", "ETL"]
 }
 </script>
 {% endblock %}
+
+{# Renders a description as a list when its lines are bullets, prose otherwise. #}
+{% macro description_block(text) %}
+  {%- set items = text | bullets -%}
+  {%- if items -%}
+  <ul class="exp-bullets">
+    {%- for item in items %}<li>{{ item }}</li>{% endfor %}
+  </ul>
+  {%- else -%}
+  <p class="exp-desc">{{ text }}</p>
+  {%- endif -%}
+{% endmacro %}
 
 {% block content %}
 
@@ -41,7 +53,7 @@
   <div class="wrap">
     <div class="s-head rv">
       <div>
-        <h2 class="s-title">Who I <em>am</em></h2>
+        <h2 class="s-title">Who I <em>am</em>?</h2>
       </div>
     </div>
     <div class="about-grid">
@@ -50,20 +62,13 @@
           {% from "macros.html" import picture %}
           {{ picture('images/profile', 'Kyrylo Bublii — backend developer', 400, 400) }}
         </div>
-
       </div>
-      <div class="rv d1">
+      <div class="about-copy rv d1">
         <p class="about-lead">
-          I write backend code for a living and enjoy the puzzle of making systems that <em>actually work</em>.
+          I write backend code and run the infrastructure it lives on, because software only counts once it is <em>actually running</em>.
         </p>
         <div class="about-body">
-          <p>I build web apps, mostly on the backend. My work spans APIs, internal tools and freelance projects. On the data side I design schemas, write ETL pipelines and work with PostgreSQL.</p>
-        </div>
-        <div class="about-fact-grid">
-          <div class="about-fact"><div class="af-label">Role</div><div class="af-val">{% if experience %}{{ experience[0].role }} · {{ experience[0].org }}{% endif %}</div></div>
-          <div class="about-fact"><div class="af-label">Degree</div><div class="af-val">{% if education %}{{ education[0].title }}{% endif %}</div></div>
-          <div class="about-fact"><div class="af-label">Location</div><div class="af-val">{{ profile.get('location') }}</div></div>
-          <div class="about-fact"><div class="af-label">Status</div><div class="af-val" style="color:#16a34a;">{{ profile.get('status', 'Open to hire') }}</div></div>
+          <p>I ship and run backend systems: containers, CI/CD pipelines and Linux servers, plus the Python services they carry. Most of my time goes to Docker, Kubernetes and deployment automation — the rest to Flask, FastAPI and PostgreSQL.</p>
         </div>
         <div class="about-links">
           <a href="{{ url_for('contact') }}" class="btn-primary">Get In Touch →</a>
@@ -88,7 +93,7 @@
           <div class="exp-period">{{ item.period_start }}{% if item.period_end %} – {{ item.period_end }}{% endif %}</div>
           <div class="exp-role">{{ item.role }}</div>
           <div class="exp-org">{{ item.org }}{% if item.location %} · {{ item.location }}{% endif %}</div>
-          {% if item.description %}<p class="exp-desc">{{ item.description }}</p>{% endif %}
+          {% if item.description %}{{ description_block(item.description) }}{% endif %}
         </div>
         {% endfor %}
       </div>
@@ -98,7 +103,7 @@
           <div class="exp-period">{{ item.period }}</div>
           <div class="exp-role">{{ item.title }}</div>
           <div class="exp-org">{{ item.org }}</div>
-          {% if item.description %}<p class="exp-desc">{{ item.description }}</p>{% endif %}
+          {% if item.description %}{{ description_block(item.description) }}{% endif %}
         </div>
         {% endfor %}
       </div>
@@ -114,10 +119,12 @@
         <h2 class="s-title">My <em>Stack</em></h2>
       </div>
     </div>
-    <div class="skills-table-wrap rv">
+    {# One unnamed group means the label column is dead space — the two-column
+       table only earns its keep when the skills are actually categorised. #}
+    <div class="skills-table-wrap rv{% if skills | length < 2 %} is-flat{% endif %}">
       {% for category, items in skills.items() %}
       <div class="skill-row">
-        <span class="sk-cat">{{ category }}</span>
+        {% if skills | length > 1 %}<span class="sk-cat">{{ category }}</span>{% endif %}
         <div class="sk-items">
           {% for item in items %}<span class="sk-pill">{{ item }}</span>{% endfor %}
         </div>
