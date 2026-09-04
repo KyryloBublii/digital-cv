@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Work / Kyrylo Bublii{% endblock %}
+{% block title %}Kyrylo Bublii · Projects{% endblock %}
 {% block description %}Side projects and open-source work by Kyrylo Bublii — web apps, APIs, ETL pipelines and data tools built with Python, Java and PostgreSQL.{% endblock %}
 
 {% block content %}
@@ -65,18 +65,6 @@
     if (e.target.closest('a')) return;
     window.location.href = card.dataset.href;
   });
-</script>
-
-<script>
-  (function () {
-    const sLabel = document.querySelector('.s-label');
-    if (sLabel) {
-      document.documentElement.style.setProperty(
-        '--s-label-h',
-        sLabel.offsetHeight + 'px'
-      );
-    }
-  })();
 </script>
 
 <script>

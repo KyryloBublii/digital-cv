@@ -4,21 +4,40 @@
   <style>
     #consent-banner {
       position: fixed;
-      bottom: 0; left: 0; right: 0;
+      inset: 0;
       z-index: 900;
-      background: var(--surface);
-      border-top: 1px solid var(--ink-5);
-      box-shadow: 0 -4px 24px rgba(0,0,0,0.07);
-      padding: 18px var(--gap);
-    }
-    .cb-inner {
-      max-width: var(--max);
-      margin: 0 auto;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-      flex-wrap: wrap;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(0,0,0,0.45);
+      animation: cb-fade 240ms ease both;
+    }
+    .cb-card {
+      width: 100%;
+      max-width: 440px;
+      max-height: calc(100vh - 48px);
+      overflow-y: auto;
+      background: var(--surface);
+      border: 1px solid var(--ink-5);
+      border-radius: 14px;
+      box-shadow: 0 18px 60px rgba(0,0,0,0.22);
+      padding: 28px;
+      animation: cb-rise 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @keyframes cb-fade { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes cb-rise {
+      from { opacity: 0; transform: translateY(12px) scale(0.98); }
+      to   { opacity: 1; transform: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #consent-banner, .cb-card { animation: none; }
+    }
+    .cb-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 20px;
     }
     .cb-text {
       font-family: var(--fb);
@@ -30,7 +49,16 @@
       min-width: 200px;
     }
     .cb-text a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
-    .cb-actions { display: flex; gap: 10px; flex-shrink: 0; align-items: center; }
+    .cb-actions { display: flex; gap: 10px; align-items: center; }
+    .cb-actions button, .cb-actions .btn-primary, .cb-actions .btn-ghost {
+      flex: 1;
+      justify-content: center;
+    }
+    .cb-actions form { flex: 1; display: flex; }
+    /* No-JS by default; the inline script below flips the banner to .cb-js */
+    #consent-banner #cb-js-actions { display: none; }
+    #consent-banner.cb-js #cb-js-actions { display: flex; }
+    #consent-banner.cb-js .cb-nojs { display: none; }
     .cb-nojs-note {
       font-family: var(--fm);
       font-size: 11px;
@@ -41,23 +69,21 @@
       margin: 0 auto;
     }
     @media (max-width: 560px) {
-      .cb-inner { flex-direction: column; align-items: flex-start; }
-      .cb-actions { width: 100%; }
-      .cb-actions button, .cb-actions .btn-primary, .cb-actions .btn-ghost {
-        flex: 1;
-        justify-content: center;
-      }
+      .cb-card { padding: 22px; }
+      .cb-actions { flex-direction: column; align-items: stretch; }
     }
   </style>
+
+  <div class="cb-card">
 
   <div class="cb-inner">
     <p class="cb-text">
       We use cookies to understand how visitors use this site.
       You can accept or decline analytics tracking.
-      <a href="{{ url_for('privacy') }}">Privacy policy →</a>
+      <a href="{{ url_for('privacy') }}" target="_blank" rel="noopener" hx-boost="false">Privacy policy ↗</a>
     </p>
 
-    {# JS-powered HTMX buttons — hidden via noscript style below when JS is off #}
+    {# JS-powered HTMX buttons — shown only once the .cb-js class is set #}
     <div class="cb-actions" id="cb-js-actions">
       <button class="btn-primary"
               hx-post="/set-consent"
@@ -72,9 +98,8 @@
     </div>
   </div>
 
-  {# No-JS fallback: hide the HTMX buttons and provide regular form submits #}
-  <noscript>
-    <style>#cb-js-actions { display: none; }</style>
+  {# No-JS fallback: plain form submits, hidden by CSS as soon as JS runs #}
+  <div class="cb-nojs">
     <div class="cb-inner" style="padding-top:8px;">
       <p class="cb-nojs-note">JavaScript is disabled — no analytics are loaded.</p>
       <div class="cb-actions">
@@ -88,9 +113,12 @@
         </form>
       </div>
     </div>
-  </noscript>
+  </div>
+
+  </div>
 
 </div>
+<script>document.getElementById('consent-banner').className = 'cb-js';</script>
 
 <script>
   (function () {
@@ -116,16 +144,30 @@
       document.head.appendChild(s);
     }
 
+    /* Lock page scroll while the modal is open */
+    var _prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    function _dismiss() {
+      document.body.style.overflow = _prevOverflow;
+      var el = document.getElementById('consent-banner');
+      if (el) el.remove();
+    }
+
     window._consentAccept = function () {
       _initGA();
-      var el = document.getElementById('consent-banner');
-      if (el) el.remove();
+      _dismiss();
     };
 
-    window._consentDecline = function () {
+    window._consentDecline = _dismiss;
+
+    /* Re-assert the modal state after HTMX swaps the page content */
+    document.body.addEventListener('htmx:afterSwap', function () {
       var el = document.getElementById('consent-banner');
-      if (el) el.remove();
-    };
+      if (!el) return;
+      el.className = 'cb-js';
+      document.body.style.overflow = 'hidden';
+    });
   })();
 </script>
 

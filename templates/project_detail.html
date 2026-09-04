@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ project.title }} / Kyrylo Bublii{% endblock %}
+{% block title %}{{ project.title }}{% endblock %}
 {% block description %}{{ project.description }}{% endblock %}
 {% block og_type %}article{% endblock %}
 {% block og_image %}{{ project.screenshot or (BASE_URL + '/static/images/og-default.jpg') }}{% endblock %}
@@ -237,7 +237,6 @@
 
     <div class="rv d1 pd-hero-row">
       <div class="pd-hero-left">
-        <div class="s-label">{{ project.year }}</div>
         <h1 class="pd-title">{{ project.title }}</h1>
         <div class="pd-meta">
           <div class="proj-tags" style="margin:0;">

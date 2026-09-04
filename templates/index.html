@@ -60,7 +60,6 @@
   <div class="wrap">
     <div class="s-head rv">
       <div>
-        <div class="s-label">Selected Work</div>
         <h2 class="s-title">Featured <em>Projects</em></h2>
       </div>
       <a href="{{ url_for('projects') }}" class="btn-ghost">All Projects →</a>
@@ -106,7 +105,6 @@
 <section class="s">
   <div class="wrap">
     <div class="rv" style="text-align:center;max-width:560px;margin:0 auto;">
-      <div class="s-label" style="text-align:center;">Work with me</div>
       <h2 class="s-title" style="margin-bottom:20px;">Have something<br>to <em>build?</em></h2>
       <p style="font-size:15px;font-weight:300;color:var(--ink-2);line-height:1.8;margin-bottom:32px;">
         New product, open role, or something else entirely. Just send a message.
@@ -119,13 +117,15 @@
 <script>
 (function () {
   var roles = [
-    { title: ["Data",    "Engineer"],  color: "#0f6e56", stack: { primary: ["Python", "ETL"],               secondary: ["PostgreSQL", "SQL"] } },
-    { title: ["Backend", "Developer"], color: "#7f77dd", stack: { primary: ["Python"],                      secondary: ["Docker", "REST APIs", "PostgreSQL"] } },
-    { title: ["Python",  "Developer"], color: "#ba7517", stack: { primary: ["Python", "FastAPI", "Django"], secondary: ["SQLAlchemy", "Supabase", "pytest"] } },
+    { title: ["Python", "Developer"], color: "#ba7517", stack: { primary: ["Python", "FastAPI", "Django", "Flask"], secondary: ["SQLAlchemy", "PostgreSQL", "pytest"] } },
+    { title: ["DevOps", "Engineer"],  color: "#0f6e56", stack: { primary: ["Docker", "CI/CD"],                       secondary: ["nginx", "GitHub Actions", "Linux"] } },
   ];
 
   // ── Build typewriter title ────────────────────────────────────
   var titleBlock = document.getElementById('hero-title-block');
+  /* Clear first: on an HTMX history restore the cached snapshot already
+     holds the nodes an earlier run built, so appending would double them. */
+  titleBlock.innerHTML = '';
   var twLine1 = document.createElement('span');
   twLine1.className = 'hero-title-line1';
   var twLine2 = document.createElement('em');
@@ -136,6 +136,7 @@
 
   // ── Build dots ────────────────────────────────────────────────
   var dotsEl = document.getElementById('hero-dots');
+  dotsEl.innerHTML = '';
   roles.forEach(function (role, i) {
     var dot = document.createElement('span');
     dot.className = 'hero-dot' + (i === 0 ? ' active' : '');
@@ -145,6 +146,7 @@
 
   // ── Build chip groups ─────────────────────────────────────────
   var chipsWrap = document.getElementById('stack-chips-wrap');
+  chipsWrap.innerHTML = '';
   roles.forEach(function (role, i) {
     var group = document.createElement('div');
     group.className = 'stack-chips-group' + (i === 0 ? ' active' : '');
@@ -166,10 +168,20 @@
   bar.style.background = roles[0].color;
   cta.style.background = roles[0].color;
 
+  /* Each homepage render claims a new run id. Timers left over from an
+     earlier render see a newer id (or a detached title block) and bow out,
+     so exactly one loop runs — and it keeps running after HTMX swaps. */
+  var runId = (window._heroRun || 0) + 1;
+  window._heroRun = runId;
+  function alive() {
+    return window._heroRun === runId && document.body.contains(titleBlock);
+  }
+
   // ── Typewriter helpers ────────────────────────────────────────
   function typeInto(el, text, speed, cb) {
     var i = 0;
     function tick() {
+      if (!alive()) return;
       el.textContent = text.slice(0, i);
       i++;
       if (i <= text.length) { setTimeout(tick, speed); }
@@ -180,6 +192,7 @@
 
   function deleteFrom(el, speed, cb) {
     function tick() {
+      if (!alive()) return;
       if (el.textContent.length === 0) { cb && cb(); return; }
       el.textContent = el.textContent.slice(0, -1);
       setTimeout(tick, speed);
@@ -209,12 +222,9 @@
     chipGroups[current].classList.add('active');
   }
 
-  /* Stop the animation loop if HTMX navigates away from the homepage */
-  document.body.addEventListener('htmx:beforeSwap', function () { window._heroDead = true; });
-
   // ── Cycle ─────────────────────────────────────────────────────
   function cycle() {
-    if (window._heroDead) return;
+    if (!alive()) return;
     deleteFrom(twLine2, 38, function () {
       setTimeout(function () {
         deleteFrom(twLine1, 38, function () {

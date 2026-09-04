@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}About / Kyrylo Bublii{% endblock %}
+{% block title %}Kyrylo Bublii · About Me{% endblock %}
 {% block description %}About Kyrylo Bublii — backend developer and data engineer based in Siauliai, Lithuania. BSc Software Engineering. Experience in Python, Java, PostgreSQL, Docker and REST APIs.{% endblock %}
 
 {% block structured_data %}
@@ -41,7 +41,6 @@
   <div class="wrap">
     <div class="s-head rv">
       <div>
-        <div class="s-label">About Me</div>
         <h2 class="s-title">Who I <em>am</em></h2>
       </div>
     </div>
@@ -79,13 +78,11 @@
   <div class="wrap">
     <div class="s-head rv">
       <div>
-        <div class="s-label">Background</div>
         <h2 class="s-title">Experience &amp; <em>Education</em></h2>
       </div>
     </div>
     <div class="exp-cols">
       <div class="rv">
-        <div class="exp-col-head">Work Experience</div>
         {% for item in experience %}
         <div class="exp-item">
           <div class="exp-period">{{ item.period_start }}{% if item.period_end %} – {{ item.period_end }}{% endif %}</div>
@@ -96,7 +93,6 @@
         {% endfor %}
       </div>
       <div class="rv d1">
-        <div class="exp-col-head">Education</div>
         {% for item in education %}
         <div class="exp-item">
           <div class="exp-period">{{ item.period }}</div>
@@ -115,7 +111,6 @@
   <div class="wrap">
     <div class="s-head rv">
       <div>
-        <div class="s-label">Technical Skills</div>
         <h2 class="s-title">My <em>Stack</em></h2>
       </div>
     </div>
@@ -137,7 +132,6 @@
   <div class="wrap">
     <div class="s-head rv">
       <div>
-        <div class="s-label">Certifications</div>
         <h2 class="s-title">Courses &amp; <em>Credentials</em></h2>
       </div>
     </div>
@@ -145,7 +139,6 @@
       {% for cert in certifications %}
       <div class="cert-item rv{% if loop.index > 1 %} d1{% endif %}">
         <div class="cert-meta">
-          <div class="cert-issuer">{{ cert.issuer }}</div>
           <div class="cert-date">{{ cert.date }}</div>
         </div>
         <div class="cert-body">
