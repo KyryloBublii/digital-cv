@@ -581,11 +581,10 @@ nav {
   display: grid;
   grid-template-columns: 300px 1fr;
   gap: 64px;
-  align-items: stretch;   /* lets the copy column match the photo's height */
+  align-items: start;
 }
-/* Copy fills the column so the CTA can sit on the photo's baseline, bottom-right. */
-.about-copy { display: flex; flex-direction: column; }
-.about-copy .about-links { margin-top: auto; display: flex; justify-content: flex-end; }
+/* CTA sits directly beneath the paragraph, left-aligned with it. */
+.about-copy .about-links { margin-top: 28px; }
 .about-photo-box { position: sticky; top: 80px; }
 .about-photo {
   width: 100%;
@@ -1016,7 +1015,6 @@ footer {
     grid-template-columns: 1fr;
     gap: 36px;
   }
-  .about-copy .about-links { margin-top: 28px; justify-content: flex-start; }
   .about-photo-box {
     position: static;
     display: grid;
