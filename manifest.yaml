@@ -1,0 +1,173 @@
+# Kubernetes manifest for digital-cv (https://kyrylobublii.com)
+#
+# Architecture note vs. docker-compose.yml: the compose setup runs a dedicated
+# nginx container in front of gunicorn (TLS termination, http->https + www->apex
+# redirects, /static/ served straight from a host volume). Here that job is done
+# by an Ingress + ingress-nginx controller instead — the idiomatic K8s equivalent —
+# so there's a single app container; Flask serves /static/ itself rather than
+# nginx serving it from a separate mounted volume.
+#
+# Before applying:
+#   1. Images come from GHCR, built by .github/workflows/deploy-k8s.yml: it pushes
+#      ghcr.io/kyrylobublii/digital-cv:<git-sha> and then runs `kubectl set image`
+#      over SSH, so after the first deploy the live tag is a SHA, not the value
+#      written below. If the GHCR package is private, the namespace also needs a
+#      pull secret and an `imagePullSecrets:` entry in the pod spec.
+#      For local/minikube testing instead:
+#           eval $(minikube -p minikube docker-env)
+#           docker build -t digital-cv:latest .
+#      ...then set `image: digital-cv:latest` + `imagePullPolicy: Never` below.
+#   2. Create the Secret from the .env that already exists on the server — every
+#      value the app needs comes from there, secret or not, so there is exactly
+#      one place to keep in sync and nothing to retype:
+#        kubectl create secret generic digital-cv-secrets --from-env-file=.env
+#      To update it later (plain create fails once it exists):
+#        kubectl create secret generic digital-cv-secrets --from-env-file=.env \
+#          --dry-run=client -o yaml | kubectl apply -f -
+#        kubectl rollout restart deploy/digital-cv    # envFrom changes need a restart
+#      Notes: --from-env-file skips blank and #-commented lines, so the commented
+#      TURNSTILE_* keys in .env stay out (the contact form then renders without the
+#      widget, and _verify_turnstile() fails open — app.py:35). It does NOT strip
+#      inline comments, so keep values bare: KEY=value, no trailing "# note".
+#      No namespace is set on any resource here, so everything lands in whichever
+#      namespace kubectl targets — pass -n at apply time, or leave it to the
+#      current context, and keep both Secrets in that same namespace.
+#   3. Nothing else to fill in — the manifest holds no app configuration values.
+#   4. Point the TLS Secret (`digital-cv-tls`, referenced in the Ingress) at a real
+#      cert — e.g. via cert-manager, or `kubectl create secret tls digital-cv-tls
+#      --cert=... --key=...` using the same origin cert nginx.conf uses today.
+
+# No ConfigMap: every value the app reads comes from the digital-cv-secrets
+# Secret, built straight from .env (see step 2 above). Splitting them would mean
+# maintaining the same keys in two places and hand-copying values that already
+# exist on the server.
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: digital-cv
+  labels:
+    app: digital-cv
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: digital-cv
+  template:
+    metadata:
+      labels:
+        app: digital-cv
+    spec:
+      containers:
+      - name: digital-cv
+        # Bootstrap value only: .github/workflows/deploy-k8s.yml replaces this
+        # with an immutable :<git-sha> tag on every deploy. Never leave a moving
+        # tag as the deployed one — Kubernetes compares the image string, so
+        # re-pushing the same tag rolls nothing out.
+        image: ghcr.io/kyrylobublii/digital-cv:main
+        imagePullPolicy: IfNotPresent   # must not be Never — the image is pulled from GHCR
+        ports:
+        - name: http
+          containerPort: 8000           # matches EXPOSE 8000 / gunicorn --bind 0.0.0.0:8000 in the Dockerfile
+        envFrom:
+        - secretRef:
+            name: digital-cv-secrets    # every key from .env; see header step 2
+        # Measured on this image with 2 gunicorn workers: ~68 MiB at boot, 73.5 MiB
+        # peak after a full GitHub-backed render (repo list + READMEs + markdown +
+        # nh3). Requests sit above that so the pod schedules on real steady state;
+        # the memory limit leaves room for the per-worker 1h project cache, which
+        # holds every repo's rendered readme_html and grows with the repo count.
+        resources:
+          requests:
+            cpu: "50m"          # idle CPU measured at 0.03-0.11%
+            memory: "192Mi"
+          limits:
+            cpu: "1000m"        # burst headroom for cold-start markdown/nh3 work
+            memory: "512Mi"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /robots.txt          # cheap, static-ish route — avoids exercising the GitHub-API-backed home page on every liveness check
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 20
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: digital-cv-svc
+spec:
+  type: ClusterIP
+  selector:
+    app: digital-cv          # matches Deployment's Pod template label above
+  ports:
+  - port: 80                 # what the Ingress backend below points at
+    targetPort: http          # container's actual listening port (8000, by name)
+
+---
+# Traefik ships enabled with k3s, so this targets it — nothing extra to install.
+# The Middleware reproduces nginx.conf's www -> apex 301, which plain Ingress
+# rules cannot express on their own.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: www-to-apex
+spec:
+  redirectRegex:
+    regex: "^https://www\\.kyrylobublii\\.com/(.*)"
+    replacement: "https://kyrylobublii.com/${1}"
+    permanent: true
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: digital-cv-ingress
+  annotations:
+    # websecure is k3s Traefik's :443 entrypoint. http -> https is a Traefik
+    # entrypoint setting, not an Ingress one — see the note at the bottom.
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    # Format is <namespace>-<middleware name>@kubernetescrd, so this string is
+    # namespace-dependent: applying into a namespace other than "default" means
+    # editing this line to match, or the www -> apex redirect silently no-ops.
+    traefik.ingress.kubernetes.io/router.middlewares: default-www-to-apex@kubernetescrd
+spec:
+  ingressClassName: traefik
+  tls:
+  - hosts:
+    - kyrylobublii.com
+    - www.kyrylobublii.com
+    secretName: digital-cv-tls    # see "Before applying" step 4
+  rules:
+  - host: kyrylobublii.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: digital-cv-svc
+            port:
+              number: 80            # Service's `port`, not its targetPort — matches the Service block above
+  - host: www.kyrylobublii.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: digital-cv-svc
+            port:
+              number: 80
+  # http -> https: unlike ingress-nginx's ssl-redirect annotation, Traefik does
+  # this at the entrypoint level, cluster-wide. On k3s, add to the HelmChartConfig
+  # for traefik (/var/lib/rancher/k3s/server/manifests/traefik-config.yaml):
+  #   ports.web.redirectTo.port: websecure
+  # Cloudflare's "Always Use HTTPS" also covers it if the site sits behind it.
