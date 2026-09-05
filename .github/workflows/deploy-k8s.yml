@@ -58,6 +58,12 @@ jobs:
           tags: |
             ${{ env.IMAGE }}:${{ github.sha }}
             ${{ env.IMAGE }}:main
+          # buildx defaults to provenance=mode=max on GitHub Actions, which
+          # pushes an image index plus an attestation manifest. GHCR fails those
+          # intermittently with "blob upload unknown to registry" on long
+          # uploads. A plain single-manifest image pushes reliably.
+          provenance: false
+          sbom: false
 
       - name: Roll out on the cluster
         uses: appleboy/ssh-action@v1.0.3
